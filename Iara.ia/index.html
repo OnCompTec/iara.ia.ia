@@ -1,0 +1,2132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111210">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Iara.ia — seu espaço de ideias</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="iara-icon-192.png">
+  <link rel="apple-touch-icon" href="iara-apple-touch-icon.png">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111210;
+      --panel: #171815;
+      --panel-soft: #1d1e1a;
+      --line: #292a25;
+      --text: #f0efe9;
+      --muted: #9c9d94;
+      --accent: #c5f277;
+      --accent-dark: #202b14;
+      --user: #252720;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button, textarea { font: inherit; }
+    button { color: inherit; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 252px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .auth-gate {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse at 50% 42%, #25291c 0, #171815 36%, var(--bg) 75%);
+    }
+
+    .auth-gate-card {
+      width: min(100%, 430px);
+      padding: 34px 30px;
+      border: 1px solid #34362e;
+      border-radius: 20px;
+      background: #171815ed;
+      text-align: center;
+      box-shadow: 0 24px 80px #0005;
+    }
+
+    .auth-gate-mark {
+      display: grid;
+      width: 76px;
+      height: 88px;
+      margin: 0 auto 20px;
+      place-items: center;
+    }
+
+    .auth-gate-mark img { width: 100%; height: 100%; object-fit: contain; }
+
+    .auth-gate h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 580;
+      letter-spacing: -1px;
+    }
+
+    .auth-gate-copy {
+      margin: 12px auto 23px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .auth-gate-button {
+      width: 100%;
+      min-height: 43px;
+      border: 1px solid var(--accent);
+      border-radius: 11px;
+      color: #171a12;
+      background: var(--accent);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .auth-gate-button:disabled { opacity: .55; cursor: wait; }
+
+    .auth-gate-status {
+      min-height: 16px;
+      margin-top: 13px;
+      color: #b7b8b0;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      padding: 25px 16px 18px;
+      background: #151613;
+      border-right: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 7px;
+      font-size: 17px;
+      font-weight: 650;
+      letter-spacing: -.4px;
+    }
+
+    .brand-mark, .assistant-mark {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .brand-mark {
+      width: 31px;
+      height: 38px;
+    }
+
+    .brand-mark img, .assistant-mark img { width: 100%; height: 100%; object-fit: contain; }
+
+    .new-chat {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 42px;
+      border: 1px solid #35372f;
+      border-radius: 10px;
+      background: transparent;
+      cursor: pointer;
+      transition: background .18s, border-color .18s;
+    }
+
+    .new-chat:hover, .history-item:hover { background: #20211d; border-color: #45473e; }
+
+    .history { display: grid; gap: 8px; }
+    #conversationList { display: grid; gap: 6px; }
+
+    .section-label {
+      margin: 0 9px 5px;
+      color: #77796f;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+
+    .history-item {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      padding: 10px 11px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      color: #b7b8b0;
+      font-size: 13px;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .history-row {
+      display: flex;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .history-delete {
+      display: grid;
+      width: 36px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    .history-delete:hover:not(:disabled) {
+      border-color: #543b37;
+      color: #ff9a8d;
+      background: #30201e;
+    }
+
+    .history-item:disabled, .history-delete:disabled {
+      cursor: wait;
+      opacity: .55;
+    }
+
+    .history-item.active { color: var(--text); background: #22231f; }
+
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      margin-top: auto;
+      padding: 14px 8px 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+      color: inherit;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      color: #d7d8ce;
+      background: #34362e;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .sidebar-profile:hover .profile-name { color: var(--accent); }
+    .profile-name { font-size: 12px; font-weight: 600; }
+    .profile-plan { margin-top: 3px; color: var(--muted); font-size: 11px; }
+
+    .main {
+      display: flex;
+      min-width: 0;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 66px;
+      padding: 0 31px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .model-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #d8d9d1;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .model-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px #c5f27766;
+    }
+
+    .demo-badge {
+      padding: 6px 9px;
+      border: 1px solid #3b3d34;
+      border-radius: 20px;
+      color: #b2b4a9;
+      font-size: 10px;
+      letter-spacing: .3px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .profile-trigger {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 40px;
+      padding: 4px 12px 4px 5px;
+      border: 1px solid #35372f;
+      border-radius: 24px;
+      color: var(--text);
+      background: #1a1b18;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .profile-trigger:hover { border-color: #555a44; background: #20211d; }
+    .profile-trigger .avatar { width: 30px; height: 30px; }
+
+    .catalog-trigger {
+      padding: 7px 10px;
+      border: 1px solid #45483a;
+      border-radius: 20px;
+      color: var(--accent);
+      background: #1a1c16;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .catalog-trigger:hover { background: #25291c; }
+
+    .api-settings-trigger {
+      padding: 7px 10px;
+      border: 1px solid #45483a;
+      border-radius: 20px;
+      color: #d7d8ce;
+      background: #1a1b18;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .api-settings-trigger:hover { background: #252620; }
+
+    .provider-dialog {
+      width: min(900px, calc(100vw - 32px));
+      max-width: none;
+      max-height: min(760px, calc(100dvh - 32px));
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid #3a3c33;
+      border-radius: 18px;
+      color: var(--text);
+      background: #171815;
+      box-shadow: 0 24px 90px #0009;
+    }
+
+    .profile-dialog { width: min(460px, calc(100vw - 32px)); }
+    .profile-content { padding: 28px; }
+    .profile-identity { display: grid; justify-items: center; gap: 9px; text-align: center; }
+    .profile-identity .avatar { width: 84px; height: 84px; font-size: 28px; }
+    .profile-identity h3 { margin: 4px 0 0; font-size: 18px; font-weight: 600; }
+    .profile-identity p { margin: 0; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+    .profile-api-status { margin-top: 20px; padding: 12px 14px; border: 1px solid #35372f; border-radius: 11px; color: #b7b8b0; font-size: 12px; text-align: center; }
+    .profile-api-status.configured { border-color: #55613a; color: var(--accent); background: #202719; }
+    .profile-actions { display: grid; gap: 9px; margin-top: 16px; }
+    .profile-action {
+      min-height: 42px;
+      padding: 9px 13px;
+      border: 1px solid #35372f;
+      border-radius: 10px;
+      color: var(--text);
+      background: #1a1b18;
+      font: inherit;
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .profile-action:hover { border-color: #555a44; background: #20211d; }
+    .profile-action.primary { border-color: #45483a; color: var(--accent); }
+    .profile-action.danger { color: #ef9b91; }
+    .profile-action:disabled { opacity: .55; cursor: wait; }
+    .profile-sync-status { min-height: 17px; margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; text-align: center; }
+
+    .provider-dialog::backdrop { background: #080907c9; backdrop-filter: blur(4px); }
+
+    .provider-dialog-inner {
+      display: flex;
+      max-height: min(760px, calc(100dvh - 32px));
+      flex-direction: column;
+    }
+
+    .provider-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px 25px 19px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .provider-title {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 580;
+      letter-spacing: -.5px;
+    }
+
+    .provider-description {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .dialog-close {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 auto;
+      border: 1px solid #393a33;
+      border-radius: 9px;
+      color: #c3c4bb;
+      background: #20211d;
+      font-size: 19px;
+      cursor: pointer;
+    }
+
+    .provider-search-wrap { padding: 16px 25px 12px; }
+
+    .provider-search {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid #34362e;
+      border-radius: 10px;
+      outline: 0;
+      color: var(--text);
+      background: #111210;
+      font: inherit;
+      font-size: 13px;
+    }
+
+    .provider-search:focus { border-color: #646b4e; }
+
+    .provider-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      padding: 4px 25px 20px;
+      overflow-y: auto;
+    }
+
+    .provider-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 66px;
+      padding: 12px 14px;
+      border: 1px solid #30312b;
+      border-radius: 11px;
+      color: var(--text);
+      text-decoration: none;
+      background: #1b1c18;
+      transition: border-color .16s, background .16s, transform .16s;
+    }
+
+    .provider-card:hover {
+      transform: translateY(-1px);
+      border-color: #555a44;
+      background: #20221b;
+    }
+
+    .provider-name { font-size: 13px; font-weight: 600; }
+    .provider-status { margin-top: 5px; color: #92948a; font-size: 10px; }
+    .provider-arrow { flex: 0 0 auto; color: var(--accent); font-size: 17px; }
+
+    .provider-empty {
+      grid-column: 1 / -1;
+      padding: 24px 0;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .provider-footer {
+      padding: 13px 25px 16px;
+      border-top: 1px solid var(--line);
+      color: #85877d;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    .provider-footer a { color: #c5d89d; }
+
+    .api-settings-form {
+      display: grid;
+      gap: 14px;
+      padding: 20px 25px 24px;
+      overflow-y: auto;
+    }
+
+    .api-field { display: grid; gap: 7px; }
+
+    .api-field label {
+      color: #dedfd8;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .api-field input {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid #34362e;
+      border-radius: 10px;
+      outline: 0;
+      color: var(--text);
+      background: #111210;
+      font: inherit;
+      font-size: 13px;
+    }
+
+    .api-field input:focus { border-color: #646b4e; }
+
+    .api-help, .api-warning {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .api-warning {
+      padding: 11px 12px;
+      border: 1px solid #51452c;
+      border-radius: 9px;
+      color: #e0c895;
+      background: #282318;
+    }
+
+    .api-settings-status {
+      min-height: 16px;
+      color: #c5f277;
+      font-size: 11px;
+    }
+
+    .api-settings-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .api-save, .api-remove {
+      min-height: 37px;
+      padding: 8px 13px;
+      border: 1px solid #45483a;
+      border-radius: 9px;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .api-save {
+      border-color: var(--accent);
+      color: #171a12;
+      background: var(--accent);
+      font-weight: 650;
+    }
+
+    .api-remove { color: #d1a7a0; background: #211a19; }
+
+    .auth-form {
+      display: grid;
+      gap: 14px;
+      padding: 20px 25px 24px;
+      overflow-y: auto;
+    }
+
+    .auth-field { display: grid; gap: 7px; }
+
+    .auth-field label {
+      color: #dedfd8;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .auth-field input {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid #34362e;
+      border-radius: 10px;
+      outline: 0;
+      color: var(--text);
+      background: #111210;
+      font: inherit;
+      font-size: 13px;
+    }
+
+    .auth-field input:focus { border-color: #646b4e; }
+    #confirmPasswordField[hidden], #resetPassword[hidden] { display: none; }
+
+    .auth-primary {
+      min-height: 40px;
+      padding: 9px 14px;
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      color: #171a12;
+      background: var(--accent);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .auth-primary:disabled { opacity: .6; cursor: wait; }
+
+    .auth-secondary {
+      padding: 5px;
+      border: 0;
+      color: #c5d89d;
+      background: transparent;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .auth-links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .auth-status {
+      min-height: 16px;
+      color: #c5f277;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .auth-status.error { color: #e7b5ab; }
+
+    .message-content.error {
+      border-color: #64433e;
+      color: #e7b5ab;
+      background: #241a18;
+    }
+
+    .chat {
+      display: flex;
+      width: min(100%, 790px);
+      flex: 1;
+      flex-direction: column;
+      align-self: center;
+      padding: 0 24px;
+    }
+
+    .messages {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 24px;
+      padding: 50px 0 32px;
+    }
+
+    .welcome {
+      margin: auto 0;
+      padding: 10px 0 32px;
+      text-align: center;
+      animation: rise-in .45s ease both;
+    }
+
+    .welcome-icon {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 70px;
+      margin: 0 auto 22px;
+    }
+
+    .welcome-icon img { width: 100%; height: 100%; object-fit: contain; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(29px, 4vw, 39px);
+      font-weight: 570;
+      letter-spacing: -1.6px;
+    }
+
+    .welcome-copy {
+      max-width: 420px;
+      margin: 12px auto 29px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .suggestions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .suggestion {
+      padding: 13px 14px;
+      border: 1px solid #30312b;
+      border-radius: 11px;
+      color: #c4c5bd;
+      background: #181916;
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: left;
+      cursor: pointer;
+      transition: transform .18s, border-color .18s, background .18s;
+    }
+
+    .suggestion:hover {
+      transform: translateY(-2px);
+      border-color: #555a44;
+      background: #1e201a;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: rise-in .25s ease both;
+    }
+
+    .message.user { justify-content: flex-end; }
+
+    .assistant-mark {
+      width: 25px;
+      height: 31px;
+      margin-top: 1px;
+    }
+
+    .message-content {
+      max-width: min(590px, 82%);
+      padding: 12px 15px;
+      border: 1px solid #2d2e28;
+      border-radius: 4px 14px 14px;
+      color: #dedfd8;
+      background: #191a17;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .message.user .message-content {
+      border-color: #30312a;
+      border-radius: 14px 4px 14px 14px;
+      color: #f0f0e9;
+      background: var(--user);
+    }
+
+    .typing { color: #a4a69a; }
+    .typing::after { content: " "; animation: dots 1.2s steps(4, end) infinite; }
+
+    .composer-wrap { padding: 0 0 15px; }
+
+    .composer {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 12px 12px 10px 17px;
+      border: 1px solid #3a3b34;
+      border-radius: 16px;
+      background: #1a1b18;
+      box-shadow: 0 12px 40px #00000020;
+      transition: border-color .18s, box-shadow .18s;
+    }
+
+    .composer:focus-within {
+      border-color: #646b4e;
+      box-shadow: 0 0 0 3px #c5f2770d, 0 12px 40px #00000020;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 27px;
+      max-height: 160px;
+      resize: none;
+      padding: 4px 0;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      background: transparent;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    textarea::placeholder { color: #77796f; }
+
+    .send {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 10px;
+      color: #171a12;
+      background: var(--accent);
+      cursor: pointer;
+      transition: opacity .18s, transform .18s;
+    }
+
+    .send:hover { transform: translateY(-1px); }
+    .send:disabled { opacity: .38; cursor: default; transform: none; }
+    .send svg { width: 17px; height: 17px; }
+
+    .disclaimer {
+      margin: 9px 0 0;
+      color: #74766e;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    @keyframes rise-in {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes dots {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75%, 100% { content: "..."; }
+    }
+
+    @media (max-width: 700px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .topbar { min-height: 58px; padding: 0 18px; }
+      .chat { padding: 0 16px; }
+      .messages { padding: 28px 0 24px; }
+      .welcome { padding-bottom: 20px; }
+    }
+
+    @media (max-width: 430px) {
+      .suggestions { grid-template-columns: 1fr; }
+      .welcome-copy { font-size: 13px; }
+      .message-content { max-width: 88%; font-size: 13px; }
+      .provider-list { grid-template-columns: 1fr; }
+      .provider-header, .provider-search-wrap { padding-right: 17px; padding-left: 17px; }
+      .provider-list { padding-right: 17px; padding-left: 17px; }
+      .provider-footer { padding-right: 17px; padding-left: 17px; }
+      .api-settings-form { padding-right: 17px; padding-left: 17px; }
+      .auth-form { padding-right: 17px; padding-left: 17px; }
+      .demo-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <section class="auth-gate" id="authGate" aria-labelledby="authGateTitle">
+    <div class="auth-gate-card">
+      <div class="auth-gate-mark" aria-hidden="true">
+        <img src="iara-logo.png" alt="">
+      </div>
+      <h1 id="authGateTitle">Bem-vindo à Iara.ia</h1>
+      <p class="auth-gate-copy">Entre ou crie sua conta para acessar o chat e conversar com a Iara.ia.</p>
+      <button class="auth-gate-button" id="openAuthGate" type="button" disabled>Conectando...</button>
+      <p class="auth-gate-status" id="authGateStatus" role="status" aria-live="polite">Verificando sua sessão...</p>
+    </div>
+  </section>
+
+  <div class="app" id="app" hidden>
+    <aside class="sidebar" aria-label="Barra lateral">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <img src="iara-logo.png" alt="">
+        </span>
+        Iara.ia
+      </div>
+
+      <button class="new-chat" id="newChat" type="button">
+        <span aria-hidden="true">＋</span> Nova conversa
+      </button>
+
+      <nav class="history" aria-label="Conversas recentes">
+        <p class="section-label">Recentes</p>
+        <div id="conversationList"></div>
+      </nav>
+
+      <button class="sidebar-profile" id="openProfileSidebar" type="button" aria-label="Abrir perfil">
+        <div class="avatar" id="profileAvatar" aria-hidden="true">V</div>
+        <div>
+          <div class="profile-name" id="profileName">Visitante</div>
+          <div class="profile-plan" id="cloudSyncStatus">Sincronizando...</div>
+        </div>
+      </button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="model-label"><span class="model-dot" aria-hidden="true"></span> Iara.ia <span style="color:#77796f;font-weight:400">· Assistente</span></div>
+        <div class="topbar-actions">
+          <button class="profile-trigger" id="profileTrigger" type="button" aria-label="Abrir perfil">
+            <span class="avatar" id="topbarAvatar" aria-hidden="true">V</span>
+            <span>Perfil</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="chat" aria-label="Chat com Iara.ia">
+        <div class="messages" id="messages" aria-live="polite">
+          <div class="welcome" id="welcome">
+            <div class="welcome-icon" aria-hidden="true">
+              <img src="iara-logo.png" alt="">
+            </div>
+            <h1>O que vamos imaginar?</h1>
+            <p class="welcome-copy">Um lugar para organizar ideias, tirar dúvidas e dar forma ao que você está pensando.</p>
+            <div class="suggestions">
+              <button class="suggestion" type="button">Me ajude a planejar minha semana</button>
+              <button class="suggestion" type="button">Explique um assunto difícil de um jeito simples</button>
+              <button class="suggestion" type="button">Me dê ideias para um projeto criativo</button>
+              <button class="suggestion" type="button">Revise este texto e deixe mais claro</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="composer-wrap">
+          <form class="composer" id="chatForm">
+            <textarea id="prompt" rows="1" aria-label="Sua mensagem" placeholder="Escreva sua mensagem..."></textarea>
+            <button class="send" id="sendButton" type="submit" aria-label="Enviar mensagem" disabled>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </form>
+          <p class="disclaimer" id="chatDisclaimer">Configure uma chave NVIDIA NIM para usar respostas de IA.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="provider-dialog" id="providerDialog" aria-labelledby="providersTitle">
+    <div class="provider-dialog-inner">
+      <header class="provider-header">
+        <div>
+          <h2 class="provider-title" id="providersTitle">Provedores de IA</h2>
+          <p class="provider-description">Explore opções com planos gratuitos e abra o site oficial para conferir os limites e criar sua própria chave.</p>
+        </div>
+        <button class="dialog-close" id="closeProviders" type="button" aria-label="Fechar catálogo">×</button>
+      </header>
+      <div class="provider-search-wrap">
+        <input class="provider-search" id="providerSearch" type="search" placeholder="Buscar provedor..." aria-label="Buscar provedor">
+      </div>
+      <div class="provider-list" id="providerList"></div>
+      <footer class="provider-footer">
+        Os planos, limites e exigências podem mudar; confira os termos oficiais. A lista é informativa e não contém chaves de API.
+        Fonte: <a href="https://github.com/open-free-llm-api/awesome-freellm-apis" target="_blank" rel="noopener noreferrer">awesome-freellm-apis no GitHub</a>.
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog class="provider-dialog profile-dialog" id="profileDialog" aria-labelledby="profileTitle">
+    <div class="provider-dialog-inner">
+      <header class="provider-header">
+        <div>
+          <h2 class="provider-title" id="profileTitle">Meu perfil</h2>
+          <p class="provider-description">Sua conta e preferências da Iara.ia.</p>
+        </div>
+        <button class="dialog-close" id="closeProfile" type="button" aria-label="Fechar perfil">×</button>
+      </header>
+      <div class="profile-content">
+        <div class="profile-identity">
+          <div class="avatar" id="profilePageAvatar" aria-hidden="true">V</div>
+          <h3 id="profilePageName">Visitante</h3>
+          <p id="profilePageEmail"></p>
+        </div>
+        <p class="profile-api-status" id="profileApiStatus">MODO DEMONSTRAÇÃO</p>
+        <div class="profile-actions">
+          <button class="profile-action" id="profileGoogleConnect" type="button">Conectar Google para usar sua foto</button>
+          <button class="profile-action primary" id="profileOpenApiSettings" type="button">Configurar API</button>
+          <button class="profile-action" id="profileOpenProviders" type="button">Provedores grátis</button>
+          <button class="profile-action danger" id="profileSignOut" type="button">Sair</button>
+        </div>
+        <p class="profile-sync-status" id="profileSyncStatus" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="provider-dialog" id="apiSettingsDialog" aria-labelledby="apiSettingsTitle">
+    <div class="provider-dialog-inner">
+      <header class="provider-header">
+        <div>
+          <h2 class="provider-title" id="apiSettingsTitle">Conectar NVIDIA NIM</h2>
+          <p class="provider-description">Configure a chave da API para usar o modelo NVIDIA NIM neste chat.</p>
+        </div>
+        <button class="dialog-close" id="closeApiSettings" type="button" aria-label="Fechar configurações">×</button>
+      </header>
+      <form class="api-settings-form" id="apiSettingsForm">
+        <div class="api-field">
+          <label for="apiKeyInput">Chave API NVIDIA</label>
+          <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="Cole sua chave nvapi-..." required>
+          <p class="api-help">Crie ou gerencie sua chave no <a href="https://build.nvidia.com/settings/api-keys" target="_blank" rel="noopener noreferrer">painel oficial NVIDIA</a>.</p>
+        </div>
+        <div class="api-field">
+          <label for="modelInput">ID do modelo NIM</label>
+          <input id="modelInput" type="text" list="nvidiaModels" autocomplete="off" spellcheck="false" required>
+          <datalist id="nvidiaModels"></datalist>
+          <p class="api-help" id="modelHelp">Escolha um modelo de chat listado no endpoint NVIDIA. Exemplo: <code>nvidia/nemotron-3.5-bolt-e4b</code>. Consulte também o <a href="https://build.nvidia.com/models" target="_blank" rel="noopener noreferrer">catálogo NVIDIA NIM</a>.</p>
+        </div>
+        <p class="api-warning">A chave será salva na sua conta para uso em outros dispositivos e enviada diretamente à NVIDIA ao conversar. Ela fica acessível a quem entrar nesta conta e pode ser inspecionada no navegador. Use uma chave com limites e revogue-a se for exposta.</p>
+        <div class="api-settings-status" id="apiSettingsStatus" role="status" aria-live="polite"></div>
+        <div class="api-settings-actions">
+          <button class="api-remove" id="removeApiKey" type="button">Remover chave</button>
+          <button class="api-save" type="submit">Salvar configuração</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="provider-dialog" id="authDialog" aria-labelledby="authTitle">
+    <div class="provider-dialog-inner">
+      <header class="provider-header">
+        <div>
+          <h2 class="provider-title" id="authTitle">Entrar na Iara.ia</h2>
+          <p class="provider-description" id="authDescription">Acesse sua conta com e-mail e senha.</p>
+        </div>
+        <button class="dialog-close" id="closeAuth" type="button" aria-label="Fechar cadastro e login">×</button>
+      </header>
+      <form class="auth-form" id="authForm">
+        <div class="auth-field">
+          <label for="authEmail">E-mail</label>
+          <input id="authEmail" name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required>
+        </div>
+        <div class="auth-field">
+          <label for="authPassword">Senha</label>
+          <input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="6" placeholder="Mínimo de 6 caracteres" required>
+        </div>
+        <div class="auth-field" id="confirmPasswordField" hidden>
+          <label for="authPasswordConfirm">Confirme a senha</label>
+          <input id="authPasswordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="6" placeholder="Digite a senha novamente">
+        </div>
+        <div class="auth-status" id="authStatus" role="status" aria-live="polite"></div>
+        <button class="auth-primary" id="authSubmit" type="submit">Entrar</button>
+        <div class="auth-links">
+          <button class="auth-secondary" id="resetPassword" type="button">Esqueci minha senha</button>
+          <button class="auth-secondary" id="toggleAuthMode" type="button">Criar uma conta</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script>
+    const form = document.querySelector("#chatForm");
+    const input = document.querySelector("#prompt");
+    const sendButton = document.querySelector("#sendButton");
+    const messages = document.querySelector("#messages");
+    const welcome = document.querySelector("#welcome");
+    const providerDialog = document.querySelector("#providerDialog");
+    const providerSearch = document.querySelector("#providerSearch");
+    const providerList = document.querySelector("#providerList");
+    const apiSettingsDialog = document.querySelector("#apiSettingsDialog");
+    const apiSettingsForm = document.querySelector("#apiSettingsForm");
+    const apiKeyInput = document.querySelector("#apiKeyInput");
+    const modelInput = document.querySelector("#modelInput");
+    const apiSettingsStatus = document.querySelector("#apiSettingsStatus");
+    const profileApiStatus = document.querySelector("#profileApiStatus");
+    const chatDisclaimer = document.querySelector("#chatDisclaimer");
+    const nvidiaModels = document.querySelector("#nvidiaModels");
+    const authDialog = document.querySelector("#authDialog");
+    const authForm = document.querySelector("#authForm");
+    const authEmail = document.querySelector("#authEmail");
+    const authPassword = document.querySelector("#authPassword");
+    const authPasswordConfirm = document.querySelector("#authPasswordConfirm");
+    const confirmPasswordField = document.querySelector("#confirmPasswordField");
+    const authStatus = document.querySelector("#authStatus");
+    const authSubmit = document.querySelector("#authSubmit");
+    const authTitle = document.querySelector("#authTitle");
+    const authDescription = document.querySelector("#authDescription");
+    const resetPasswordButton = document.querySelector("#resetPassword");
+    const toggleAuthModeButton = document.querySelector("#toggleAuthMode");
+    const profileTrigger = document.querySelector("#profileTrigger");
+    const openProfileSidebar = document.querySelector("#openProfileSidebar");
+    const profileDialog = document.querySelector("#profileDialog");
+    const profileName = document.querySelector("#profileName");
+    const profileAvatar = document.querySelector("#profileAvatar");
+    const conversationList = document.querySelector("#conversationList");
+    const cloudSyncStatus = document.querySelector("#cloudSyncStatus");
+    const chatApp = document.querySelector("#app");
+    const authGate = document.querySelector("#authGate");
+    const openAuthGate = document.querySelector("#openAuthGate");
+    const authGateStatus = document.querySelector("#authGateStatus");
+    const conversation = [];
+    let currentConversationId = null;
+    let conversationSummaries = [];
+    const deletingConversationIds = new Set();
+    let accountGeneration = 0;
+    let conversationLoadVersion = 0;
+    const nvidiaEndpoint = "https://integrate.api.nvidia.com/v1/chat/completions";
+    const modelsEndpoint = "https://integrate.api.nvidia.com/v1/models";
+    const defaultModel = "nvidia/nemotron-3.5-bolt-e4b";
+    const suggestedChatModel = "nvidia/nemotron-3.5-bolt-e4b";
+    let availableNvidiaModels = [];
+    let authMode = "sign-in";
+    let currentUser = null;
+    let authBusy = false;
+    let apiKey = "";
+    let modelId = defaultModel;
+    let sending = false;
+
+    modelInput.value = modelId;
+
+    function updateApiStatus() {
+      profileApiStatus.textContent = apiKey ? "NVIDIA NIM CONFIGURADA" : "MODO DEMONSTRAÇÃO";
+      profileApiStatus.classList.toggle("configured", Boolean(apiKey));
+      chatDisclaimer.textContent = apiKey
+        ? "Conversas e configurações sincronizadas na sua conta."
+        : "Configure uma chave NVIDIA NIM para usar respostas de IA.";
+    }
+
+    updateApiStatus();
+
+    function openProfile() {
+      profileDialog.showModal();
+    }
+
+    profileTrigger.addEventListener("click", openProfile);
+    openProfileSidebar.addEventListener("click", openProfile);
+    document.querySelector("#closeProfile").addEventListener("click", () => profileDialog.close());
+    profileDialog.addEventListener("click", event => {
+      if (event.target === profileDialog) profileDialog.close();
+    });
+    document.querySelector("#profileOpenApiSettings").addEventListener("click", () => {
+      profileDialog.close();
+      apiSettingsDialog.showModal();
+      apiKeyInput.value = apiKey;
+      modelInput.value = modelId;
+      apiSettingsStatus.textContent = "";
+      apiKeyInput.focus();
+      if (apiKey) {
+        fetchNvidiaModels(apiKey)
+          .then(models => {
+            availableNvidiaModels = models;
+            renderNvidiaModels();
+          })
+          .catch(error => {
+            apiSettingsStatus.textContent = error.message;
+          });
+      }
+    });
+    document.querySelector("#profileOpenProviders").addEventListener("click", () => {
+      profileDialog.close();
+      renderProviders(providerSearch.value);
+      providerDialog.showModal();
+      providerSearch.focus();
+    });
+    document.querySelector("#profileGoogleConnect").addEventListener("click", () => {
+      if (typeof window.iaraConnectGoogleProfile === "function") {
+        window.iaraConnectGoogleProfile();
+      }
+    });
+
+    const providers = [
+      { name: "NVIDIA NIM", url: "https://build.nvidia.com/settings/api-keys", access: "Plano grátis · verificação por telefone" },
+      { name: "ModelScope", url: "https://modelscope.cn/my/myaccesstoken", access: "Plano grátis · cadastro" },
+      { name: "Cloudflare Workers AI", url: "https://dash.cloudflare.com/profile/api-tokens", access: "Plano grátis · sem cartão indicado" },
+      { name: "OpenCode Zen", url: "https://opencode.ai/auth", access: "Plano grátis · cadastro" },
+      { name: "LLM7.io", url: "https://token.llm7.io", access: "Plano grátis · sem cartão indicado" },
+      { name: "Kilo Code", url: "https://app.kilo.ai/profile", access: "Plano grátis · sem cartão indicado" },
+      { name: "Google Gemini", url: "https://aistudio.google.com/app/apikey", access: "Plano grátis · sem cartão indicado" },
+      { name: "Ollama Cloud", url: "https://ollama.com/settings/keys", access: "Plano grátis · cadastro" },
+      { name: "Mistral AI", url: "https://console.mistral.ai/api-keys", access: "Plano grátis · sem cartão indicado" },
+      { name: "OVHcloud AI Endpoints", url: "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/catalog/", access: "Plano grátis · cadastro" },
+      { name: "Groq", url: "https://console.groq.com/keys", access: "Plano grátis · sem cartão indicado" },
+      { name: "Cohere", url: "https://dashboard.cohere.com/api-keys", access: "Plano grátis · sem cartão indicado" },
+      { name: "Aion Labs", url: "https://www.aionlabs.ai/app/api-keys/", access: "Plano grátis · cadastro" },
+      { name: "Hugging Face", url: "https://huggingface.co/settings/tokens", access: "Plano grátis · sem cartão indicado" },
+      { name: "Z AI (Zhipu AI)", url: "https://open.bigmodel.cn/usercenter/apikeys", access: "Plano grátis · sem cartão indicado" },
+      { name: "Cerebras", url: "https://cloud.cerebras.ai/", access: "Plano grátis · sem cartão indicado" },
+      { name: "Agnes AI", url: "https://platform.agnes-ai.com/settings/apiKeys", access: "Plano grátis · cadastro" },
+      { name: "Alibaba Cloud Model Studio", url: "https://bailian.console.alibabacloud.com/?apiKey=1", access: "Plano grátis · cadastro" },
+      { name: "SiliconFlow", url: "https://cloud.siliconflow.cn/account/ak", access: "Plano grátis · cadastro" },
+      { name: "SambaNova", url: "https://cloud.sambanova.ai/apis", access: "Plano grátis · cadastro" },
+      { name: "xAI", url: "https://console.x.ai/", access: "Plano grátis · cadastro" },
+      { name: "Chutes.ai", url: "https://chutes.ai/", access: "Plano grátis · cadastro" },
+      { name: "Glhf.chat", url: "https://glhf.chat/", access: "Plano grátis · cadastro" },
+      { name: "AI21 Labs", url: "https://studio.ai21.com/account/api-key", access: "Plano grátis · cadastro" },
+      { name: "DeepSeek", url: "https://platform.deepseek.com/api_keys", access: "Plano grátis · cadastro" },
+      { name: "Nscale", url: "https://console.nscale.com/", access: "Plano grátis · cadastro" },
+      { name: "Nebius", url: "https://studio.nebius.com/settings/api-keys", access: "Plano grátis · cadastro" },
+      { name: "OpenRouter", url: "https://openrouter.ai/workspaces/default/keys", access: "Cota grátis limitada · opções pagas" }
+    ];
+
+    function renderProviders(query = "") {
+      const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
+      const filteredProviders = providers.filter(provider =>
+        `${provider.name} ${provider.access}`.toLocaleLowerCase("pt-BR").includes(normalizedQuery)
+      );
+      providerList.replaceChildren();
+
+      if (filteredProviders.length === 0) {
+        const emptyState = document.createElement("p");
+        emptyState.className = "provider-empty";
+        emptyState.textContent = "Nenhum provedor encontrado.";
+        providerList.append(emptyState);
+        return;
+      }
+
+      filteredProviders.forEach(provider => {
+        const link = document.createElement("a");
+        link.className = "provider-card";
+        link.href = provider.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        const details = document.createElement("span");
+        const name = document.createElement("span");
+        name.className = "provider-name";
+        name.textContent = provider.name;
+        const access = document.createElement("span");
+        access.className = "provider-status";
+        access.textContent = provider.access;
+        details.append(name, document.createElement("br"), access);
+
+        const arrow = document.createElement("span");
+        arrow.className = "provider-arrow";
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.textContent = "↗";
+        link.append(details, arrow);
+        providerList.append(link);
+      });
+    }
+
+    document.querySelector("#closeProviders").addEventListener("click", () => providerDialog.close());
+    providerSearch.addEventListener("input", () => renderProviders(providerSearch.value));
+    providerDialog.addEventListener("click", event => {
+      if (event.target === providerDialog) providerDialog.close();
+    });
+
+    document.querySelector("#closeApiSettings").addEventListener("click", () => apiSettingsDialog.close());
+    apiSettingsDialog.addEventListener("click", event => {
+      if (event.target === apiSettingsDialog) apiSettingsDialog.close();
+    });
+
+    apiSettingsForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const newKey = apiKeyInput.value.trim();
+      let newModel = modelInput.value.trim();
+      if (!newKey || !newModel) {
+        apiSettingsStatus.textContent = "Informe a chave e o ID do modelo.";
+        return;
+      }
+
+      apiSettingsStatus.textContent = "Validando modelo na NVIDIA...";
+      try {
+        if (!availableNvidiaModels.length || newKey !== apiKey) {
+          availableNvidiaModels = await fetchNvidiaModels(newKey);
+          renderNvidiaModels();
+        }
+      } catch (error) {
+        apiSettingsStatus.textContent = error.message;
+        return;
+      }
+
+      newModel = modelInput.value.trim();
+      if (!availableNvidiaModels.includes(newModel)) {
+        apiSettingsStatus.textContent = `Modelo não encontrado no endpoint NVIDIA. Escolha um ID da lista, por exemplo: ${suggestedChatModel}.`;
+        if (availableNvidiaModels.includes(suggestedChatModel)) {
+          modelInput.value = suggestedChatModel;
+        }
+        return;
+      }
+
+      try {
+        if (!window.iaraCloudReady || !window.iaraCloud) {
+          throw new Error("A sincronização ainda não está disponível. Confira a conexão com a internet e tente novamente.");
+        }
+        apiSettingsStatus.textContent = "Salvando configuração...";
+        await window.iaraCloud.saveApiSettings(window.iaraCloud.userId, { apiKey: newKey, modelId: newModel });
+        apiKey = newKey;
+        modelId = newModel;
+        apiSettingsStatus.textContent = "Configuração salva na sua conta e disponível nos seus dispositivos.";
+      } catch (error) {
+        apiSettingsStatus.textContent = error.message || "Não foi possível salvar a configuração.";
+        return;
+      }
+      updateApiStatus();
+    });
+
+    async function fetchNvidiaModels(key) {
+      let response;
+      try {
+        response = await fetch(modelsEndpoint, {
+          headers: { "Authorization": `Bearer ${key}` }
+        });
+      } catch {
+        throw new Error("Não foi possível consultar os modelos NVIDIA. Verifique a conexão e se o navegador permite acesso à API.");
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(`A NVIDIA retornou uma resposta inválida ao listar modelos (HTTP ${response.status}).`);
+      }
+
+      if (!response.ok) {
+        const detail = data?.detail || data?.error?.message || data?.message;
+        if (response.status === 404) {
+          throw new Error(detail
+            ? `A NVIDIA não encontrou este modelo no endpoint de chat: ${String(detail).slice(0, 250)}. Abra Configurar API e escolha um ID da lista de modelos.`
+            : `Modelo ou endpoint não encontrado (HTTP 404). Abra Configurar API e escolha um ID da lista de modelos; ${modelId} pode não aceitar chat completions.`);
+        }
+        throw new Error(detail
+          ? `Falha ao validar a chave (HTTP ${response.status}): ${String(detail).slice(0, 250)}`
+          : `Falha ao validar a chave (HTTP ${response.status}). Confira a chave NVIDIA.`);
+      }
+
+      if (!Array.isArray(data?.data)) {
+        throw new Error("A NVIDIA respondeu sem uma lista de modelos reconhecida.");
+      }
+      return data.data.map(item => item?.id).filter(id => typeof id === "string");
+    }
+
+    function renderNvidiaModels() {
+      nvidiaModels.replaceChildren();
+      availableNvidiaModels.forEach(id => {
+        const option = document.createElement("option");
+        option.value = id;
+        nvidiaModels.append(option);
+      });
+
+      if (availableNvidiaModels.length && !availableNvidiaModels.includes(modelInput.value.trim())) {
+        modelInput.value = suggestedChatModel;
+        apiSettingsStatus.textContent = `O modelo configurado não está disponível. Selecione um modelo listado; sugestão: ${suggestedChatModel}.`;
+      } else if (availableNvidiaModels.length) {
+        apiSettingsStatus.textContent = `${availableNvidiaModels.length} modelos carregados da NVIDIA.`;
+      }
+    }
+
+    document.querySelector("#removeApiKey").addEventListener("click", async () => {
+      if (!window.iaraCloudReady || !window.iaraCloud) {
+        apiSettingsStatus.textContent = "A sincronização não está disponível. A configuração não foi alterada.";
+        return;
+      }
+      apiSettingsStatus.textContent = "Removendo configuração da sua conta...";
+      try {
+        await window.iaraCloud.removeApiSettings(window.iaraCloud.userId);
+      } catch (error) {
+        apiSettingsStatus.textContent = error.message || "Não foi possível remover a configuração.";
+        return;
+      }
+      apiKey = "";
+      apiKeyInput.value = "";
+      modelId = defaultModel;
+      modelInput.value = defaultModel;
+      apiSettingsStatus.textContent = "Configuração removida da sua conta.";
+      updateApiStatus();
+    });
+
+    function updateComposer() {
+      input.style.height = "auto";
+      input.style.height = `${Math.min(input.scrollHeight, 160)}px`;
+      const activeConversationDeleting = currentConversationId && deletingConversationIds.has(currentConversationId);
+      input.disabled = Boolean(activeConversationDeleting);
+      sendButton.disabled = sending || Boolean(activeConversationDeleting) || input.value.trim().length === 0 || !window.iaraAuthenticated || !window.iaraCloudReady;
+    }
+
+    function addMessage(text, role, isError = false) {
+      const row = document.createElement("div");
+      row.className = `message ${role}`;
+
+      if (role === "assistant") {
+        const mark = document.createElement("span");
+        mark.className = "assistant-mark";
+        mark.setAttribute("aria-hidden", "true");
+        const logo = document.createElement("img");
+        logo.src = "iara-logo.png";
+        logo.alt = "";
+        mark.append(logo);
+        row.append(mark);
+      }
+
+      const content = document.createElement("div");
+      content.className = "message-content";
+      if (isError) content.classList.add("error");
+      content.textContent = text;
+      row.append(content);
+      messages.append(row);
+      messages.scrollTop = messages.scrollHeight;
+      return row;
+    }
+
+    function demoReply(prompt) {
+      const normalized = prompt.toLocaleLowerCase("pt-BR");
+      if (normalized.includes("semana") || normalized.includes("planej")) {
+        return "Claro! Vamos deixar a semana mais leve. Comece anotando tudo o que precisa fazer e escolha até três prioridades por dia. Reserve blocos de foco para as tarefas importantes e deixe pequenos intervalos entre eles. Se você me disser seus compromissos, posso ajudar a montar um plano mais específico.";
+      }
+      if (normalized.includes("explique") || normalized.includes("explica") || normalized.includes("difícil")) {
+        return "Posso explicar, sim! Me diga qual é o assunto e, se quiser, para quem devo adaptar a explicação (por exemplo: iniciante, estudante ou especialista).";
+      }
+      if (normalized.includes("ideia") || normalized.includes("criativ") || normalized.includes("projeto")) {
+        return "Vamos explorar possibilidades! Uma boa forma de começar é combinar algo que você gosta com um problema que gostaria de resolver. Qual é o tema ou objetivo do seu projeto? Posso sugerir caminhos a partir daí.";
+      }
+      if (normalized.includes("revise") || normalized.includes("texto") || normalized.includes("escrev")) {
+        return "Claro — cole o texto aqui e me conte para quem ele será escrito. Posso ajudar a deixá-lo mais claro, natural ou persuasivo.";
+      }
+      return "Entendi. Posso ajudar você a desenvolver essa ideia em etapas. O que seria mais útil agora: explorar opções, montar um plano ou esclarecer uma dúvida específica?";
+    }
+
+    function renderConversationList(items = conversationSummaries) {
+      conversationSummaries = items;
+      conversationList.replaceChildren();
+      items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "history-row";
+        const button = document.createElement("button");
+        button.className = `history-item${item.id === currentConversationId ? " active" : ""}`;
+        button.type = "button";
+        button.textContent = item.title || "Nova conversa";
+        button.title = button.textContent;
+        button.disabled = deletingConversationIds.has(item.id);
+        button.addEventListener("click", () => openConversation(item.id));
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "history-delete";
+        deleteButton.type = "button";
+        const deleting = deletingConversationIds.has(item.id);
+        deleteButton.textContent = deleting ? "..." : "×";
+        deleteButton.title = deleting ? "Excluindo conversa..." : `Excluir conversa: ${button.textContent}`;
+        deleteButton.setAttribute("aria-label", deleteButton.title);
+        deleteButton.disabled = sending || deletingConversationIds.has(item.id) || !window.iaraCloudReady;
+        deleteButton.addEventListener("click", () => deleteConversation(item.id));
+        row.append(button, deleteButton);
+        conversationList.append(row);
+      });
+    }
+
+    async function deleteConversation(id) {
+      if (sending || !window.iaraCloudReady || !window.iaraCloud || deletingConversationIds.has(id)) return;
+      const item = conversationSummaries.find(summary => summary.id === id);
+      if (!item) return;
+      const title = item.title || "Nova conversa";
+      if (!window.confirm(`Excluir a conversa “${title}” e todas as mensagens? Esta ação não pode ser desfeita.`)) return;
+
+      const ownerUid = window.iaraCloud.userId;
+      const deleteGeneration = accountGeneration;
+      deletingConversationIds.add(id);
+      conversationLoadVersion += 1;
+      renderConversationList();
+      updateComposer();
+      try {
+        await window.iaraCloud.deleteConversation(ownerUid, id);
+        if (deleteGeneration !== accountGeneration) return;
+        if (currentConversationId === id) {
+          conversationLoadVersion += 1;
+          currentConversationId = null;
+          conversation.length = 0;
+          messages.querySelectorAll(".message").forEach(message => message.remove());
+          welcome.hidden = false;
+          input.value = "";
+        }
+      } catch (error) {
+        if (deleteGeneration === accountGeneration) {
+          addMessage(error.message || "Não foi possível excluir esta conversa. Tente novamente.", "assistant", true);
+        }
+      } finally {
+        deletingConversationIds.delete(id);
+        renderConversationList();
+        if (deleteGeneration === accountGeneration) {
+          updateComposer();
+        }
+      }
+    }
+
+    window.iaraRenderConversations = renderConversationList;
+    window.iaraApplyApiSettings = settings => {
+      apiKey = settings?.apiKey || "";
+      modelId = settings?.modelId || defaultModel;
+      apiKeyInput.value = apiKey;
+      modelInput.value = modelId;
+      updateApiStatus();
+    };
+    window.iaraResetAccountState = () => {
+      accountGeneration += 1;
+      conversationLoadVersion += 1;
+      sending = false;
+      apiKey = "";
+      modelId = defaultModel;
+      currentConversationId = null;
+      conversation.length = 0;
+      messages.querySelectorAll(".message").forEach(message => message.remove());
+      welcome.hidden = false;
+      window.iaraRenderConversations([]);
+      window.iaraApplyApiSettings(null);
+      updateComposer();
+    };
+    window.iaraSetCloudState = (state, message = "") => {
+      cloudSyncStatus.textContent = message || ({
+        loading: "Sincronizando conversas...",
+        ready: "Sincronizado",
+        error: "Sincronização indisponível"
+      }[state] || "Conectando...");
+      cloudSyncStatus.title = cloudSyncStatus.textContent;
+      document.querySelector("#profileSyncStatus").textContent = cloudSyncStatus.textContent;
+      if (state !== "ready") {
+        chatDisclaimer.textContent = message || "Conectando para sincronizar suas conversas...";
+      } else {
+        updateApiStatus();
+      }
+      updateComposer();
+    };
+
+    async function openConversation(id) {
+      if (sending || !window.iaraCloudReady) return;
+      const ownerUid = window.iaraCloud?.userId;
+      const loadGeneration = accountGeneration;
+      const loadVersion = ++conversationLoadVersion;
+      try {
+        const storedMessages = await window.iaraCloud.loadMessages(ownerUid, id);
+        if (loadGeneration !== accountGeneration || loadVersion !== conversationLoadVersion) return;
+        currentConversationId = id;
+        conversation.length = 0;
+        messages.querySelectorAll(".message").forEach(message => message.remove());
+        storedMessages.forEach(message => {
+          const item = { role: message.role, content: message.content };
+          conversation.push(item);
+          addMessage(message.content, message.role, Boolean(message.isError));
+        });
+        welcome.hidden = storedMessages.length > 0;
+        renderConversationList();
+        updateComposer();
+      } catch (error) {
+        if (loadGeneration !== accountGeneration || loadVersion !== conversationLoadVersion) return;
+        addMessage(error.message || "Não foi possível carregar esta conversa sincronizada.", "assistant", true);
+      }
+    }
+
+    async function requestNvidiaReply() {
+      const response = await fetch(nvidiaEndpoint, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: conversation,
+          max_tokens: 1024,
+          stream: false
+        })
+      });
+
+      const responseBody = await response.text();
+      let data = null;
+      let bodyText = responseBody;
+      try {
+        data = JSON.parse(responseBody);
+      } catch {
+        bodyText = responseBody
+          .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+          .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/&nbsp;/gi, " ")
+          .replace(/&amp;/gi, "&")
+          .replace(/&quot;/gi, "\"")
+          .replace(/&#39;/gi, "'")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 280);
+      }
+
+      if (!response.ok) {
+        const detail = data?.detail || data?.error?.message || data?.message;
+        throw new Error(detail
+          ? `Erro NVIDIA (HTTP ${response.status}): ${String(detail).slice(0, 350)}`
+          : bodyText
+            ? `Erro NVIDIA (HTTP ${response.status}): ${bodyText}. Confira o ID do modelo no catálogo e se o endpoint aceita esse modelo.`
+            : `Erro NVIDIA (HTTP ${response.status}). Confira o ID do modelo no catálogo e se o endpoint aceita esse modelo.`);
+      }
+
+      if (!data) {
+        throw new Error(`A NVIDIA respondeu em formato não reconhecido (HTTP ${response.status})${bodyText ? `: ${bodyText}` : "."}`);
+      }
+
+      const reply = data?.choices?.[0]?.message?.content;
+      if (typeof reply !== "string" || !reply.trim()) {
+        throw new Error("A NVIDIA respondeu, mas não retornou texto. Confira se o modelo escolhido aceita chat completions.");
+      }
+      return reply.trim();
+    }
+
+    async function sendMessage(text) {
+      if (!window.iaraAuthenticated) {
+        authDialog.showModal();
+        return;
+      }
+      const cleanText = text.trim();
+      if (!cleanText || sending) return;
+      if (currentConversationId && deletingConversationIds.has(currentConversationId)) {
+        addMessage("Aguarde a conclusão da exclusão antes de enviar uma mensagem.", "assistant", true);
+        return;
+      }
+      if (!window.iaraCloudReady || !window.iaraCloud) {
+        addMessage("A sincronização não está disponível. A mensagem não foi enviada porque não pôde ser salva na sua conta.", "assistant", true);
+        return;
+      }
+      const ownerUid = window.iaraCloud.userId;
+      const sendGeneration = accountGeneration;
+      welcome.hidden = true;
+      const userRow = addMessage(cleanText, "user");
+      conversation.push({ role: "user", content: cleanText });
+      input.value = "";
+      sending = true;
+      updateComposer();
+      input.focus();
+
+      try {
+        if (!currentConversationId) {
+          const createdConversationId = await window.iaraCloud.createConversation(ownerUid, cleanText.slice(0, 80));
+          if (sendGeneration !== accountGeneration) return;
+          currentConversationId = createdConversationId;
+          renderConversationList();
+        }
+        await window.iaraCloud.saveMessage(ownerUid, currentConversationId, {
+          role: "user",
+          content: cleanText,
+          isError: false
+        });
+      } catch (error) {
+        if (sendGeneration !== accountGeneration) return;
+        conversation.pop();
+        userRow.remove();
+        sending = false;
+        updateComposer();
+        addMessage(error.message || "Não foi possível salvar sua mensagem. Ela não foi enviada.", "assistant", true);
+        return;
+      }
+
+      const typingRow = addMessage(apiKey ? "Consultando NVIDIA" : "Pensando", "assistant");
+      typingRow.querySelector(".message-content").classList.add("typing");
+      let reply;
+      let replyIsError = false;
+      try {
+        reply = apiKey
+          ? await requestNvidiaReply()
+          : await new Promise(resolve => window.setTimeout(() => resolve(demoReply(cleanText)), 650));
+      } catch (error) {
+        replyIsError = true;
+        reply = error instanceof TypeError
+          ? "Falha de rede ou CORS ao conectar à NVIDIA. Verifique a conexão; se estiver abrindo o HTML como arquivo local, tente servir a página por HTTP."
+          : error.message;
+      }
+      if (sendGeneration !== accountGeneration) return;
+      typingRow.remove();
+      try {
+        await window.iaraCloud.saveMessage(ownerUid, currentConversationId, {
+          role: "assistant",
+          content: reply,
+          isError: replyIsError
+        });
+        conversation.push({ role: "assistant", content: reply });
+        addMessage(reply, "assistant", replyIsError);
+      } catch (error) {
+        if (sendGeneration !== accountGeneration) return;
+        conversation.push({ role: "assistant", content: reply });
+        addMessage(reply, "assistant", replyIsError);
+        addMessage(error.message || "A resposta foi gerada, mas não foi possível sincronizá-la. Recarregue antes de continuar.", "assistant", true);
+        window.iaraCloudReady = false;
+        window.iaraSetCloudState("error", "Falha ao salvar. Recarregue para tentar sincronizar.");
+      } finally {
+        sending = false;
+        updateComposer();
+      }
+    }
+
+    input.addEventListener("input", updateComposer);
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      sendMessage(input.value);
+    });
+
+    document.querySelectorAll(".suggestion").forEach(button => {
+      button.addEventListener("click", () => sendMessage(button.textContent));
+    });
+
+    document.querySelector("#closeAuth").addEventListener("click", () => authDialog.close());
+    authDialog.addEventListener("click", event => {
+      if (event.target === authDialog) authDialog.close();
+    });
+
+    document.querySelector("#newChat").addEventListener("click", () => {
+      if (sending) return;
+      conversationLoadVersion += 1;
+      messages.querySelectorAll(".message").forEach(message => message.remove());
+      conversation.length = 0;
+      currentConversationId = null;
+      renderConversationList();
+      welcome.hidden = false;
+      input.value = "";
+      updateComposer();
+      input.focus();
+    });
+  </script>
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjdetU8F3a_UQ-QCY6_BL5sP1J7tELc6I",
+      authDomain: "iara-2142e.firebaseapp.com",
+      projectId: "iara-2142e",
+      storageBucket: "iara-2142e.firebasestorage.app",
+      messagingSenderId: "582384708168",
+      appId: "1:582384708168:web:ab069719de40179cda867d"
+    };
+
+    const topbarAvatar = document.querySelector("#topbarAvatar");
+    const profilePageAvatar = document.querySelector("#profilePageAvatar");
+    const profilePageName = document.querySelector("#profilePageName");
+    const profilePageEmail = document.querySelector("#profilePageEmail");
+    const profileGoogleConnect = document.querySelector("#profileGoogleConnect");
+    const profileSignOut = document.querySelector("#profileSignOut");
+    const profileSyncStatus = document.querySelector("#profileSyncStatus");
+    const authDialog = document.querySelector("#authDialog");
+    const authForm = document.querySelector("#authForm");
+    const authEmail = document.querySelector("#authEmail");
+    const authPassword = document.querySelector("#authPassword");
+    const authPasswordConfirm = document.querySelector("#authPasswordConfirm");
+    const confirmPasswordField = document.querySelector("#confirmPasswordField");
+    const authStatus = document.querySelector("#authStatus");
+    const authSubmit = document.querySelector("#authSubmit");
+    const authTitle = document.querySelector("#authTitle");
+    const authDescription = document.querySelector("#authDescription");
+    const resetPasswordButton = document.querySelector("#resetPassword");
+    const toggleAuthModeButton = document.querySelector("#toggleAuthMode");
+    const profileName = document.querySelector("#profileName");
+    const profileAvatar = document.querySelector("#profileAvatar");
+
+    let authMode = "sign-in";
+    let currentUser = null;
+    let authBusy = false;
+    let firebaseAuth;
+    let firebaseAuthFunctions;
+    let firestoreFunctions;
+    let firestoreDb;
+    let stopConversationUpdates;
+    let profileBusy = false;
+
+    function setAuthStatus(message, isError = false) {
+      authStatus.textContent = message;
+      authStatus.classList.toggle("error", isError);
+    }
+
+    function renderAuthMode() {
+      const creatingAccount = authMode === "sign-up";
+      authTitle.textContent = creatingAccount ? "Criar conta na Iara.ia" : "Entrar na Iara.ia";
+      authDescription.textContent = creatingAccount
+        ? "Cadastre-se com seu e-mail e crie uma senha."
+        : "Acesse sua conta com e-mail e senha.";
+      authSubmit.textContent = creatingAccount ? "Criar conta" : "Entrar";
+      confirmPasswordField.hidden = !creatingAccount;
+      authPassword.autocomplete = creatingAccount ? "new-password" : "current-password";
+      authPasswordConfirm.required = creatingAccount;
+      resetPasswordButton.hidden = creatingAccount;
+      toggleAuthModeButton.textContent = creatingAccount ? "Já tenho uma conta" : "Criar uma conta";
+    }
+
+    function describeAuthError(error) {
+      const messages = {
+        "auth/email-already-in-use": "Este e-mail já possui uma conta. Tente entrar.",
+        "auth/invalid-email": "Informe um endereço de e-mail válido.",
+        "auth/invalid-credential": "E-mail ou senha incorretos.",
+        "auth/user-not-found": "Não encontramos uma conta com este e-mail.",
+        "auth/wrong-password": "Senha incorreta.",
+        "auth/weak-password": "A senha é muito fraca. Use pelo menos 6 caracteres.",
+        "auth/too-many-requests": "Muitas tentativas. Aguarde um pouco e tente novamente.",
+        "auth/network-request-failed": "Falha de conexão. Verifique a internet e tente novamente.",
+        "auth/operation-not-allowed": "Este método de acesso ainda não está habilitado para a aplicação.",
+        "auth/unauthorized-domain": "Este domínio não está autorizado para entrar na aplicação."
+      };
+      return messages[error?.code] || "Não foi possível concluir a operação. Confira os dados e tente novamente.";
+    }
+
+    function describeFirestoreError(error) {
+      if (error?.code === "permission-denied") {
+        return "O acesso aos dados foi negado. Confira as permissões e tente novamente.";
+      }
+      if (error?.code === "failed-precondition") {
+        return "O armazenamento precisa de configuração. Tente novamente mais tarde.";
+      }
+      if (error?.code === "unavailable" || error?.code === "deadline-exceeded") {
+        return "Não foi possível sincronizar seus dados. Verifique a internet e tente novamente.";
+      }
+      return "Não foi possível sincronizar seus dados. Tente novamente.";
+    }
+
+    function requireCloudUser(expectedUid) {
+      if (!currentUser || currentUser.uid !== expectedUid) {
+        throw new Error("Sua sessão mudou. Entre novamente para sincronizar seus dados.");
+      }
+      if (!firestoreDb || !firestoreFunctions || !window.iaraCloudReady) {
+        throw new Error("A sincronização não está disponível. Confira sua conexão e tente novamente.");
+      }
+    }
+
+    function userDocument(uid, ...segments) {
+      return firestoreFunctions.doc(firestoreDb, "users", uid, ...segments);
+    }
+
+    function userCollection(uid, ...segments) {
+      return firestoreFunctions.collection(firestoreDb, "users", uid, ...segments);
+    }
+
+    function createCloudClient() {
+      window.iaraCloud = {
+        get userId() {
+          return currentUser?.uid || "";
+        },
+        async saveApiSettings(expectedUid, settings) {
+          requireCloudUser(expectedUid);
+          await firestoreFunctions.setDoc(userDocument(expectedUid, "settings", "api"), {
+            apiKey: settings.apiKey,
+            modelId: settings.modelId,
+            updatedAt: firestoreFunctions.serverTimestamp()
+          });
+        },
+        async removeApiSettings(expectedUid) {
+          requireCloudUser(expectedUid);
+          await firestoreFunctions.deleteDoc(userDocument(expectedUid, "settings", "api"));
+        },
+        async createConversation(expectedUid, title) {
+          requireCloudUser(expectedUid);
+          const conversationRef = firestoreFunctions.doc(userCollection(expectedUid, "conversations"));
+          await firestoreFunctions.setDoc(conversationRef, {
+            title,
+            createdAt: firestoreFunctions.serverTimestamp(),
+            updatedAt: firestoreFunctions.serverTimestamp()
+          });
+          return conversationRef.id;
+        },
+        async saveMessage(expectedUid, conversationId, message) {
+          requireCloudUser(expectedUid);
+          const messageRef = firestoreFunctions.doc(userCollection(expectedUid, "conversations", conversationId, "messages"));
+          const conversationRef = userDocument(expectedUid, "conversations", conversationId);
+          const batch = firestoreFunctions.writeBatch(firestoreDb);
+          batch.set(messageRef, {
+            role: message.role,
+            content: message.content,
+            isError: Boolean(message.isError),
+            createdAt: firestoreFunctions.serverTimestamp()
+          });
+          batch.update(conversationRef, {
+            updatedAt: firestoreFunctions.serverTimestamp()
+          });
+          await batch.commit();
+        },
+        async loadMessages(expectedUid, conversationId) {
+          requireCloudUser(expectedUid);
+          const messagesQuery = firestoreFunctions.query(
+            userCollection(expectedUid, "conversations", conversationId, "messages"),
+            firestoreFunctions.orderBy("createdAt", "asc")
+          );
+          const snapshot = await firestoreFunctions.getDocs(messagesQuery);
+          return snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+        },
+        async deleteConversation(expectedUid, conversationId) {
+          requireCloudUser(expectedUid);
+          const messagesSnapshot = await firestoreFunctions.getDocs(
+            userCollection(expectedUid, "conversations", conversationId, "messages")
+          );
+          for (let start = 0; start < messagesSnapshot.docs.length; start += 450) {
+            requireCloudUser(expectedUid);
+            const batch = firestoreFunctions.writeBatch(firestoreDb);
+            messagesSnapshot.docs.slice(start, start + 450).forEach(message => batch.delete(message.ref));
+            await batch.commit();
+          }
+          requireCloudUser(expectedUid);
+          await firestoreFunctions.deleteDoc(userDocument(expectedUid, "conversations", conversationId));
+        }
+      };
+    }
+
+    async function updateAuthenticatedUser(user) {
+      currentUser = user;
+      window.iaraAuthenticated = Boolean(user);
+      window.iaraCloudReady = false;
+      chatApp.hidden = !user;
+      authGate.hidden = Boolean(user);
+      const email = user?.email || "";
+      const googleProfile = user?.providerData?.find(item => item.providerId === "google.com");
+      const photoURL = user?.photoURL || googleProfile?.photoURL || "";
+      const displayName = user?.displayName || email.split("@")[0] || "Visitante";
+      profileName.textContent = displayName;
+      profilePageName.textContent = displayName;
+      profilePageEmail.textContent = email;
+      [profileAvatar, topbarAvatar, profilePageAvatar].forEach(avatar => {
+        avatar.replaceChildren();
+        const fallback = email ? email.charAt(0).toLocaleUpperCase("pt-BR") : "V";
+        if (photoURL) {
+          const image = document.createElement("img");
+          image.src = photoURL;
+          image.alt = "";
+          image.referrerPolicy = "no-referrer";
+          image.addEventListener("error", () => {
+            avatar.replaceChildren();
+            avatar.textContent = fallback;
+          }, { once: true });
+          avatar.append(image);
+        } else {
+          avatar.textContent = fallback;
+        }
+      });
+      profileGoogleConnect.hidden = Boolean(photoURL);
+      profileGoogleConnect.disabled = !user || profileBusy;
+      if (user) {
+        authDialog.close();
+        authGateStatus.textContent = "";
+        window.iaraSetCloudState("loading", "Sincronizando suas conversas...");
+        const uid = user.uid;
+        if (stopConversationUpdates) {
+          stopConversationUpdates();
+          stopConversationUpdates = null;
+        }
+        try {
+          const settingsSnapshot = await firestoreFunctions.getDoc(userDocument(uid, "settings", "api"));
+          if (currentUser?.uid !== uid) return;
+          window.iaraApplyApiSettings(settingsSnapshot.exists() ? settingsSnapshot.data() : null);
+          const conversationsQuery = firestoreFunctions.query(
+            userCollection(uid, "conversations"),
+            firestoreFunctions.orderBy("updatedAt", "desc"),
+            firestoreFunctions.limit(50)
+          );
+          stopConversationUpdates = firestoreFunctions.onSnapshot(conversationsQuery, snapshot => {
+            if (currentUser?.uid !== uid) return;
+            window.iaraRenderConversations(snapshot.docs.map(item => ({
+              id: item.id,
+              title: item.data().title || "Nova conversa"
+            })));
+          }, error => {
+            if (currentUser?.uid !== uid) return;
+            window.iaraCloudReady = false;
+            window.iaraSetCloudState("error", describeFirestoreError(error));
+          });
+          window.iaraCloudReady = true;
+          window.iaraSetCloudState("ready", "Sincronizado");
+        } catch (error) {
+          if (currentUser?.uid !== uid) return;
+          window.iaraCloudReady = false;
+          window.iaraSetCloudState("error", describeFirestoreError(error));
+        }
+      } else {
+        if (stopConversationUpdates) {
+          stopConversationUpdates();
+          stopConversationUpdates = null;
+        }
+        window.iaraResetAccountState();
+        authGateStatus.textContent = "Faça login ou crie uma conta para continuar.";
+        window.iaraSetCloudState("loading", "Entre para sincronizar seus dados");
+      }
+    }
+
+    toggleAuthModeButton.addEventListener("click", () => {
+      authMode = authMode === "sign-in" ? "sign-up" : "sign-in";
+      authForm.reset();
+      setAuthStatus("");
+      renderAuthMode();
+      authEmail.focus();
+    });
+
+    authForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!firebaseAuth || authBusy) {
+        setAuthStatus("O serviço de acesso ainda não está disponível. Abra a página por HTTPS ou confira sua conexão.", true);
+        return;
+      }
+
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      if (authMode === "sign-up" && password !== authPasswordConfirm.value) {
+        setAuthStatus("As senhas não coincidem.", true);
+        authPasswordConfirm.focus();
+        return;
+      }
+
+      authBusy = true;
+      authSubmit.disabled = true;
+      setAuthStatus(authMode === "sign-up" ? "Criando sua conta..." : "Entrando...");
+      try {
+        if (authMode === "sign-up") {
+          const credential = await firebaseAuthFunctions.createUserWithEmailAndPassword(firebaseAuth, email, password);
+          let message = "Conta criada com sucesso.";
+          try {
+            await firebaseAuthFunctions.sendEmailVerification(credential.user);
+            message += " Enviamos um link para verificar seu e-mail.";
+          } catch {
+            message += " Não foi possível enviar o e-mail de verificação agora.";
+          }
+          setAuthStatus(message);
+        } else {
+          await firebaseAuthFunctions.signInWithEmailAndPassword(firebaseAuth, email, password);
+          authDialog.close();
+        }
+      } catch (error) {
+        setAuthStatus(describeAuthError(error), true);
+      } finally {
+        authBusy = false;
+        authSubmit.disabled = false;
+      }
+    });
+
+    resetPasswordButton.addEventListener("click", async () => {
+      if (!firebaseAuth) {
+        setAuthStatus("O serviço de acesso ainda não está disponível. Tente novamente quando a página estiver conectada.", true);
+        return;
+      }
+      const email = authEmail.value.trim();
+      if (!email) {
+        setAuthStatus("Informe seu e-mail para receber o link de redefinição.", true);
+        authEmail.focus();
+        return;
+      }
+      try {
+        await firebaseAuthFunctions.sendPasswordResetEmail(firebaseAuth, email);
+        setAuthStatus("Se houver uma conta com esse e-mail, você receberá um link para redefinir a senha.");
+      } catch (error) {
+        setAuthStatus(describeAuthError(error), true);
+      }
+    });
+
+    profileSignOut.addEventListener("click", async () => {
+      if (!currentUser || profileBusy) return;
+      profileBusy = true;
+      profileSignOut.disabled = true;
+      profileSyncStatus.textContent = "Saindo da sua conta...";
+      try {
+        await firebaseAuthFunctions.signOut(firebaseAuth);
+        document.querySelector("#profileDialog").close();
+      } catch {
+        profileSyncStatus.textContent = "Não foi possível sair agora. Tente novamente.";
+      } finally {
+        profileBusy = false;
+        profileSignOut.disabled = false;
+      }
+    });
+
+    window.iaraConnectGoogleProfile = async () => {
+      if (!currentUser || profileBusy) return;
+      profileBusy = true;
+      profileGoogleConnect.disabled = true;
+      profileSyncStatus.textContent = "Conectando sua conta Google...";
+      try {
+        const provider = new firebaseAuthFunctions.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: "select_account" });
+        const credential = await firebaseAuthFunctions.linkWithPopup(currentUser, provider);
+        const googleProfile = credential.user.providerData.find(item => item.providerId === "google.com");
+        if (googleProfile?.photoURL || googleProfile?.displayName) {
+          await firebaseAuthFunctions.updateProfile(credential.user, {
+            displayName: googleProfile.displayName || credential.user.displayName || "",
+            photoURL: googleProfile.photoURL || credential.user.photoURL || ""
+          });
+        }
+        await firebaseAuthFunctions.reload(credential.user);
+        await updateAuthenticatedUser(firebaseAuth.currentUser);
+        profileSyncStatus.textContent = "Conta Google conectada.";
+      } catch (error) {
+        const messages = {
+          "auth/operation-not-allowed": "O acesso com Google ainda não está ativado para esta aplicação.",
+          "auth/credential-already-in-use": "Esta conta Google já está vinculada a outro perfil.",
+          "auth/popup-blocked": "O navegador bloqueou a janela. Permita pop-ups e tente novamente.",
+          "auth/popup-closed-by-user": "Conexão cancelada."
+        };
+        profileSyncStatus.textContent = messages[error?.code] || "Não foi possível conectar a conta Google. Tente novamente.";
+      } finally {
+        profileBusy = false;
+        profileGoogleConnect.disabled = false;
+      }
+    };
+
+    openAuthGate.addEventListener("click", () => {
+      authMode = "sign-in";
+      authForm.reset();
+      setAuthStatus("");
+      renderAuthMode();
+      authDialog.showModal();
+      authEmail.focus();
+    });
+
+    renderAuthMode();
+    window.iaraAuthenticated = false;
+    window.iaraCloudReady = false;
+    chatApp.hidden = true;
+    authGate.hidden = false;
+    try {
+      const [appSdk, authSdk, firestoreSdk] = await Promise.all([
+        import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js"),
+        import("https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js")
+      ]);
+      const firebaseApp = appSdk.initializeApp(firebaseConfig);
+      firebaseAuth = authSdk.getAuth(firebaseApp);
+      firebaseAuthFunctions = authSdk;
+      firestoreFunctions = firestoreSdk;
+      firestoreDb = firestoreSdk.getFirestore(firebaseApp);
+      createCloudClient();
+      window.iaraFirebaseReady = true;
+      openAuthGate.disabled = false;
+      openAuthGate.textContent = "Entrar ou criar conta";
+      authGateStatus.textContent = "Verificando sua sessão...";
+      authStatus.textContent = "";
+      authSdk.onAuthStateChanged(firebaseAuth, updateAuthenticatedUser);
+    } catch (error) {
+      window.iaraFirebaseReady = false;
+      window.iaraCloudReady = false;
+      openAuthGate.disabled = true;
+      openAuthGate.textContent = "Serviço indisponível";
+      authGateStatus.textContent = "Não foi possível conectar. Verifique a conexão e recarregue a página.";
+      window.iaraSetCloudState("error", "Não foi possível sincronizar. Verifique sua conexão.");
+      setAuthStatus("Não foi possível carregar os serviços necessários. Abra esta página por HTTPS ou confira sua conexão.", true);
+    }
+  </script>
+  <script>
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch(error => console.error("Não foi possível registrar o service worker da Iara.ia:", error));
+      });
+    }
+  </script>
+</body>
+</html>
