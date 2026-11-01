@@ -906,8 +906,9 @@
         padding: 18px 0 16px;
         scroll-padding-bottom: 16px;
       }
-      .composer-wrap { padding-bottom: max(17px, env(safe-area-inset-bottom)); }
+      .composer-wrap { padding-bottom: max(29px, env(safe-area-inset-bottom)); }
       .composer { gap: 8px; padding: 9px 9px 8px 13px; }
+      textarea { min-height: 64px; }
       .disclaimer { margin-top: 6px; font-size: 9px; }
       .welcome { margin-top: auto; margin-bottom: auto; padding: 6px 0 14px; }
       .welcome-icon { width: 48px; height: 56px; margin-bottom: 12px; }
@@ -938,7 +939,7 @@
       .welcome-icon { width: 42px; height: 48px; margin-bottom: 8px; }
       .welcome-copy { margin-bottom: 12px; }
       .suggestion { padding-top: 8px; padding-bottom: 8px; }
-      .composer-wrap { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+      .composer-wrap { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
     }
   </style>
 </head>
@@ -1745,7 +1746,7 @@
         return;
       }
 
-      const typingRow = addMessage(apiKey ? "Consultando NVIDIA" : "Pensando", "assistant");
+      const typingRow = addMessage(apiKey ? "Aguarde" : "Pensando", "assistant");
       typingRow.querySelector(".message-content").classList.add("typing");
       let reply;
       let replyIsError = false;
