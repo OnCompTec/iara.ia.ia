@@ -1094,8 +1094,8 @@
     const deletingConversationIds = new Set();
     let accountGeneration = 0;
     let conversationLoadVersion = 0;
-    const nvidiaEndpoint = "https://integrate.api.nvidia.com/v1/chat/completions";
-    const modelsEndpoint = "https://integrate.api.nvidia.com/v1/models";
+    const nvidiaEndpoint = "/api/nvidia?action=chat";
+    const modelsEndpoint = "/api/nvidia?action=models";
     const defaultModel = "nvidia/nemotron-3.5-bolt-e4b";
     const suggestedChatModel = "nvidia/nemotron-3.5-bolt-e4b";
     let availableNvidiaModels = [];
@@ -1292,7 +1292,7 @@
           headers: { "Authorization": `Bearer ${key}` }
         });
       } catch {
-        throw new Error("Não foi possível consultar os modelos NVIDIA. Verifique a conexão e se o navegador permite acesso à API.");
+        throw new Error("Não foi possível acessar a função /api/nvidia da Vercel. Confirme se api/nvidia.js foi publicado junto com o site.");
       }
 
       let data;
@@ -1645,7 +1645,7 @@
       } catch (error) {
         replyIsError = true;
         reply = error instanceof TypeError
-          ? "Falha de rede ou CORS ao conectar à NVIDIA. Verifique a conexão; se estiver abrindo o HTML como arquivo local, tente servir a página por HTTP."
+          ? "Não foi possível acessar a função /api/nvidia da Vercel. Confirme se api/nvidia.js foi publicado junto com o site."
           : error.message;
       }
       if (sendGeneration !== accountGeneration) return;
