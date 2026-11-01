@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111210">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -31,8 +31,10 @@
 
     body {
       min-width: 320px;
-      min-height: 100vh;
+      height: 100vh;
+      height: 100dvh;
       margin: 0;
+      overflow: hidden;
       background: var(--bg);
       color: var(--text);
     }
@@ -43,14 +45,18 @@
     .app {
       display: grid;
       grid-template-columns: 252px minmax(0, 1fr);
-      min-height: 100vh;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
     }
 
     .auth-gate {
       display: grid;
-      min-height: 100vh;
+      height: 100%;
+      min-height: 0;
       place-items: center;
-      padding: 24px;
+      overflow-y: auto;
+      padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
       background:
         radial-gradient(ellipse at 50% 42%, #25291c 0, #171815 36%, var(--bg) 75%);
     }
@@ -256,7 +262,8 @@
     .main {
       display: flex;
       min-width: 0;
-      min-height: 100vh;
+      min-height: 0;
+      height: 100%;
       flex-direction: column;
     }
 
@@ -264,9 +271,26 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex: 0 0 auto;
       min-height: 66px;
       padding: 0 31px;
       border-bottom: 1px solid var(--line);
+    }
+
+    .mobile-menu-trigger {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      min-height: 40px;
+      padding: 0 10px;
+      border: 1px solid #35372f;
+      border-radius: 10px;
+      color: var(--text);
+      background: #1a1b18;
+      font: inherit;
+      font-size: 19px;
+      cursor: pointer;
     }
 
     .model-label {
@@ -652,6 +676,7 @@
       display: flex;
       width: min(100%, 790px);
       flex: 1;
+      min-height: 0;
       flex-direction: column;
       align-self: center;
       padding: 0 24px;
@@ -660,9 +685,14 @@
     .messages {
       display: flex;
       flex: 1;
+      min-height: 0;
       flex-direction: column;
       gap: 24px;
-      padding: 50px 0 32px;
+      padding: 36px 0 24px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: #3a3b34 transparent;
     }
 
     .welcome {
@@ -762,7 +792,7 @@
     .typing { color: #a4a69a; }
     .typing::after { content: " "; animation: dots 1.2s steps(4, end) infinite; }
 
-    .composer-wrap { padding: 0 0 15px; }
+    .composer-wrap { flex: 0 0 auto; padding: 0 0 21px; }
 
     .composer {
       display: flex;
@@ -822,6 +852,8 @@
       text-align: center;
     }
 
+    .mobile-sidebar-backdrop { display: none; }
+
     @keyframes rise-in {
       from { opacity: 0; transform: translateY(7px); }
       to { opacity: 1; transform: translateY(0); }
@@ -835,12 +867,55 @@
     }
 
     @media (max-width: 700px) {
-      .app { grid-template-columns: 1fr; }
+      .app { grid-template-columns: minmax(0, 1fr); }
       .sidebar { display: none; }
-      .topbar { min-height: 58px; padding: 0 18px; }
-      .chat { padding: 0 16px; }
-      .messages { padding: 28px 0 24px; }
-      .welcome { padding-bottom: 20px; }
+      .sidebar.mobile-open {
+        position: fixed;
+        z-index: 31;
+        inset: 0 auto 0 0;
+        display: flex;
+        width: min(320px, 86vw);
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-top: max(20px, env(safe-area-inset-top));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+        box-shadow: 20px 0 60px #0008;
+      }
+      .mobile-sidebar-backdrop:not([hidden]) {
+        position: fixed;
+        z-index: 30;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #0009;
+      }
+      .topbar {
+        min-height: 58px;
+        gap: 9px;
+        padding: max(7px, env(safe-area-inset-top)) 14px 7px;
+      }
+      .mobile-menu-trigger { display: inline-flex; }
+      .model-label { min-width: 0; gap: 6px; font-size: 12px; }
+      .model-label > span:last-child { display: none; }
+      .topbar-actions { margin-left: auto; }
+      .profile-trigger { min-height: 38px; padding-right: 9px; }
+      .chat { width: 100%; padding: 0 14px; }
+      .messages {
+        padding: 18px 0 16px;
+        scroll-padding-bottom: 16px;
+      }
+      .composer-wrap { padding-bottom: max(17px, env(safe-area-inset-bottom)); }
+      .composer { gap: 8px; padding: 9px 9px 8px 13px; }
+      .disclaimer { margin-top: 6px; font-size: 9px; }
+      .welcome { margin-top: auto; margin-bottom: auto; padding: 6px 0 14px; }
+      .welcome-icon { width: 48px; height: 56px; margin-bottom: 12px; }
+      .welcome-copy { margin: 8px auto 17px; font-size: 12px; }
+      .suggestions { gap: 7px; }
+      .suggestion { padding: 10px 11px; }
+      .message { gap: 8px; }
+      .message-content { max-width: 88%; padding: 10px 12px; }
     }
 
     @media (max-width: 430px) {
@@ -854,6 +929,16 @@
       .api-settings-form { padding-right: 17px; padding-left: 17px; }
       .auth-form { padding-right: 17px; padding-left: 17px; }
       .demo-badge { display: none; }
+    }
+
+    @media (max-height: 640px) {
+      .auth-gate { padding-top: 12px; padding-bottom: 12px; }
+      .topbar { min-height: 54px; }
+      .messages { padding-top: 12px; padding-bottom: 12px; }
+      .welcome-icon { width: 42px; height: 48px; margin-bottom: 8px; }
+      .welcome-copy { margin-bottom: 12px; }
+      .suggestion { padding-top: 8px; padding-bottom: 8px; }
+      .composer-wrap { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
     }
   </style>
 </head>
@@ -871,7 +956,7 @@
   </section>
 
   <div class="app" id="app" hidden>
-    <aside class="sidebar" aria-label="Barra lateral">
+    <aside class="sidebar" id="sidebar" aria-label="Barra lateral">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">
           <img src="iara-logo.png" alt="">
@@ -897,8 +982,11 @@
       </button>
     </aside>
 
+    <button class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop" type="button" aria-label="Fechar menu de conversas" hidden></button>
+
     <main class="main">
       <header class="topbar">
+        <button class="mobile-menu-trigger" id="mobileMenuTrigger" type="button" aria-label="Abrir conversas" aria-controls="sidebar" aria-expanded="false">☰</button>
         <div class="model-label"><span class="model-dot" aria-hidden="true"></span> Iara.ia <span style="color:#77796f;font-weight:400">· Assistente</span></div>
         <div class="topbar-actions">
           <button class="profile-trigger" id="profileTrigger" type="button" aria-label="Abrir perfil">
@@ -1079,6 +1167,9 @@
     const toggleAuthModeButton = document.querySelector("#toggleAuthMode");
     const profileTrigger = document.querySelector("#profileTrigger");
     const openProfileSidebar = document.querySelector("#openProfileSidebar");
+    const sidebar = document.querySelector("#sidebar");
+    const mobileMenuTrigger = document.querySelector("#mobileMenuTrigger");
+    const mobileSidebarBackdrop = document.querySelector("#mobileSidebarBackdrop");
     const profileDialog = document.querySelector("#profileDialog");
     const profileName = document.querySelector("#profileName");
     const profileAvatar = document.querySelector("#profileAvatar");
@@ -1108,6 +1199,22 @@
 
     modelInput.value = modelId;
 
+    function closeMobileSidebar() {
+      sidebar.classList.remove("mobile-open");
+      mobileSidebarBackdrop.hidden = true;
+      mobileMenuTrigger.setAttribute("aria-expanded", "false");
+    }
+
+    mobileMenuTrigger.addEventListener("click", () => {
+      const isOpen = sidebar.classList.toggle("mobile-open");
+      mobileSidebarBackdrop.hidden = !isOpen;
+      mobileMenuTrigger.setAttribute("aria-expanded", String(isOpen));
+    });
+    mobileSidebarBackdrop.addEventListener("click", closeMobileSidebar);
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeMobileSidebar();
+    });
+
     function updateApiStatus() {
       profileApiStatus.textContent = apiKey ? "NVIDIA NIM CONFIGURADA" : "MODO DEMONSTRAÇÃO";
       profileApiStatus.classList.toggle("configured", Boolean(apiKey));
@@ -1119,6 +1226,7 @@
     updateApiStatus();
 
     function openProfile() {
+      closeMobileSidebar();
       profileDialog.showModal();
     }
 
@@ -1418,7 +1526,10 @@
         button.textContent = item.title || "Nova conversa";
         button.title = button.textContent;
         button.disabled = deletingConversationIds.has(item.id);
-        button.addEventListener("click", () => openConversation(item.id));
+        button.addEventListener("click", () => {
+          closeMobileSidebar();
+          openConversation(item.id);
+        });
         const deleteButton = document.createElement("button");
         deleteButton.className = "history-delete";
         deleteButton.type = "button";
@@ -1695,6 +1806,7 @@
 
     document.querySelector("#newChat").addEventListener("click", () => {
       if (sending) return;
+      closeMobileSidebar();
       conversationLoadVersion += 1;
       messages.querySelectorAll(".message").forEach(message => message.remove());
       conversation.length = 0;
