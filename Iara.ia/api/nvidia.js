@@ -52,6 +52,7 @@ module.exports = async function handler(req, res) {
   }
 
   let endpoint = `${NVIDIA_BASE_URL}/models`;
+  let shouldStream = false;
   let requestOptions = {
     method: "GET",
     headers: { Authorization: `Bearer ${apiKey}` }
@@ -70,11 +71,13 @@ module.exports = async function handler(req, res) {
       typeof body.model !== "string" ||
       body.model.length === 0 ||
       body.model.length > 160 ||
+      (body.stream !== undefined && typeof body.stream !== "boolean") ||
       !validateMessages(body.messages)
     ) {
       sendError(res, 400, "A mensagem ou o modelo informado é inválido.");
       return;
     }
+    shouldStream = body.stream === true;
     endpoint = `${NVIDIA_BASE_URL}/chat/completions`;
     requestOptions = {
       method: "POST",
@@ -86,18 +89,53 @@ module.exports = async function handler(req, res) {
         model: body.model,
         messages: body.messages,
         max_tokens: 1024,
-        stream: false
+        stream: shouldStream
       })
     };
   }
 
+  const controller = new AbortController();
+  const abortUpstream = () => controller.abort();
+  req.on("aborted", abortUpstream);
+  res.on("close", () => {
+    if (!res.writableEnded) abortUpstream();
+  });
+
   try {
-    const response = await fetch(endpoint, requestOptions);
-    const responseBody = await response.text();
+    const response = await fetch(endpoint, { ...requestOptions, signal: controller.signal });
     res.status(response.status);
     res.setHeader("Content-Type", response.headers.get("content-type") || "application/json");
-    res.send(responseBody);
+    if (isChatRequest && shouldStream && response.ok && response.body) {
+      res.setHeader("Cache-Control", "no-cache, no-transform");
+      res.setHeader("Connection", "keep-alive");
+      const reader = response.body.getReader();
+      try {
+        while (!controller.signal.aborted) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (!res.write(Buffer.from(value))) {
+            await new Promise(resolve => {
+              res.once("drain", resolve);
+              res.once("close", resolve);
+            });
+          }
+        }
+      } finally {
+        if (controller.signal.aborted) await reader.cancel().catch(() => {});
+        reader.releaseLock();
+      }
+      if (!res.destroyed) res.end();
+      return;
+    }
+
+    res.send(await response.text());
   } catch {
+    if (controller.signal.aborted || res.destroyed) return;
+    if (res.headersSent) {
+      res.write(`data: ${JSON.stringify({ error: { message: "A conexão com a NVIDIA foi interrompida." } })}\n\n`);
+      res.end();
+      return;
+    }
     sendError(res, 502, "A função da Vercel não conseguiu se conectar à NVIDIA.");
   }
 };
