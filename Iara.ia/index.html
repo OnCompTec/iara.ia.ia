@@ -429,6 +429,7 @@
     .profile-identity .avatar { width: 84px; height: 84px; font-size: 28px; }
     .profile-identity h3 { margin: 4px 0 0; font-size: 18px; font-weight: 600; }
     .profile-identity p { margin: 0; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+    .profile-photo-help { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
     .profile-api-status { margin-top: 20px; padding: 12px 14px; border: 1px solid #35372f; border-radius: 11px; color: #b7b8b0; font-size: 12px; text-align: center; }
     .profile-api-status.configured { border-color: #55613a; color: var(--accent); background: #202719; }
     .profile-actions { display: grid; gap: 9px; margin-top: 16px; }
@@ -1289,12 +1290,17 @@
           <div class="avatar" id="profilePageAvatar" aria-hidden="true">V</div>
           <h3 id="profilePageName">Visitante</h3>
           <p id="profilePageEmail"></p>
+          <p class="profile-photo-help">JPG, PNG ou WebP · até 10 MB. A foto é ajustada e sincronizada com sua conta.</p>
         </div>
         <p class="profile-api-status" id="profileApiStatus">MODO DEMONSTRAÇÃO</p>
         <div class="profile-actions">
+          <input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+          <button class="profile-action" id="profileChoosePhoto" type="button">Escolher foto do dispositivo</button>
+          <button class="profile-action" id="profileRemovePhoto" type="button" hidden>Remover foto personalizada</button>
           <button class="profile-action" id="profileGoogleConnect" type="button">Conectar Google para usar sua foto</button>
           <button class="profile-action primary" id="profileOpenApiSettings" type="button">Configurar API</button>
           <button class="profile-action" id="profileOpenProviders" type="button">Provedores grátis</button>
+          <button class="profile-action danger" id="profileResetSettings" type="button">Restaurar configurações iniciais</button>
           <button class="profile-action danger" id="profileSignOut" type="button">Sair</button>
         </div>
         <p class="profile-sync-status" id="profileSyncStatus" role="status" aria-live="polite"></p>
@@ -2874,6 +2880,10 @@
     const profilePageAvatar = document.querySelector("#profilePageAvatar");
     const profilePageName = document.querySelector("#profilePageName");
     const profilePageEmail = document.querySelector("#profilePageEmail");
+    const profilePhotoInput = document.querySelector("#profilePhotoInput");
+    const profileChoosePhoto = document.querySelector("#profileChoosePhoto");
+    const profileRemovePhoto = document.querySelector("#profileRemovePhoto");
+    const profileResetSettings = document.querySelector("#profileResetSettings");
     const profileGoogleConnect = document.querySelector("#profileGoogleConnect");
     const profileSignOut = document.querySelector("#profileSignOut");
     const profileSyncStatus = document.querySelector("#profileSyncStatus");
@@ -2901,10 +2911,20 @@
     let firestoreDb;
     let stopConversationUpdates;
     let profileBusy = false;
+    let customProfilePhoto = "";
 
     function setAuthStatus(message, isError = false) {
       authStatus.textContent = message;
       authStatus.classList.toggle("error", isError);
+    }
+
+    function updateProfileActionStates() {
+      const disabled = !currentUser || !window.iaraCloudReady || profileBusy;
+      profileChoosePhoto.disabled = disabled;
+      profileRemovePhoto.disabled = disabled;
+      profileResetSettings.disabled = disabled;
+      profileSignOut.disabled = !currentUser || profileBusy;
+      profileGoogleConnect.disabled = !currentUser || profileBusy;
     }
 
     function renderAuthMode() {
@@ -2983,6 +3003,24 @@
         async removeApiSettings(expectedUid) {
           requireCloudUser(expectedUid);
           await firestoreFunctions.deleteDoc(userDocument(expectedUid, "settings", "api"));
+        },
+        async saveProfilePhoto(expectedUid, photoDataUrl) {
+          requireCloudUser(expectedUid);
+          await firestoreFunctions.setDoc(userDocument(expectedUid, "settings", "profile"), {
+            photoDataUrl,
+            updatedAt: firestoreFunctions.serverTimestamp()
+          });
+        },
+        async removeProfileSettings(expectedUid) {
+          requireCloudUser(expectedUid);
+          await firestoreFunctions.deleteDoc(userDocument(expectedUid, "settings", "profile"));
+        },
+        async resetAppSettings(expectedUid) {
+          requireCloudUser(expectedUid);
+          const batch = firestoreFunctions.writeBatch(firestoreDb);
+          batch.delete(userDocument(expectedUid, "settings", "api"));
+          batch.delete(userDocument(expectedUid, "settings", "profile"));
+          await batch.commit();
         },
         async createConversation(expectedUid, title) {
           requireCloudUser(expectedUid);
@@ -3099,6 +3137,8 @@
     }
 
     async function updateAuthenticatedUser(user) {
+      const previousUid = currentUser?.uid;
+      if (previousUid && previousUid !== user?.uid) customProfilePhoto = "";
       currentUser = user;
       window.iaraAuthenticated = Boolean(user);
       window.iaraCloudReady = false;
@@ -3106,30 +3146,14 @@
       authGate.hidden = Boolean(user);
       const email = user?.email || "";
       const googleProfile = user?.providerData?.find(item => item.providerId === "google.com");
-      const photoURL = user?.photoURL || googleProfile?.photoURL || "";
+      const authPhotoURL = user?.photoURL || googleProfile?.photoURL || "";
+      const photoURL = customProfilePhoto || authPhotoURL;
       const displayName = user?.displayName || email.split("@")[0] || "Visitante";
       profileName.textContent = displayName;
       profilePageName.textContent = displayName;
       profilePageEmail.textContent = email;
-      [profileAvatar, topbarAvatar, profilePageAvatar].forEach(avatar => {
-        avatar.replaceChildren();
-        const fallback = email ? email.charAt(0).toLocaleUpperCase("pt-BR") : "V";
-        if (photoURL) {
-          const image = document.createElement("img");
-          image.src = photoURL;
-          image.alt = "";
-          image.referrerPolicy = "no-referrer";
-          image.addEventListener("error", () => {
-            avatar.replaceChildren();
-            avatar.textContent = fallback;
-          }, { once: true });
-          avatar.append(image);
-        } else {
-          avatar.textContent = fallback;
-        }
-      });
-      profileGoogleConnect.hidden = Boolean(photoURL);
-      profileGoogleConnect.disabled = !user || profileBusy;
+      renderProfileAvatars(user, photoURL);
+      updateProfileActionStates();
       if (user) {
         authDialog.close();
         authGateStatus.textContent = "";
@@ -3143,6 +3167,11 @@
           const settingsSnapshot = await firestoreFunctions.getDoc(userDocument(uid, "settings", "api"));
           if (currentUser?.uid !== uid) return;
           window.iaraApplyApiSettings(settingsSnapshot.exists() ? settingsSnapshot.data() : null);
+          const profileSnapshot = await firestoreFunctions.getDoc(userDocument(uid, "settings", "profile"));
+          if (currentUser?.uid !== uid) return;
+          const profileSettings = profileSnapshot.exists() ? profileSnapshot.data() : null;
+          customProfilePhoto = typeof profileSettings?.photoDataUrl === "string" ? profileSettings.photoDataUrl : "";
+          renderProfileAvatars(user, customProfilePhoto || user.photoURL || googleProfile?.photoURL || "");
           const conversationsQuery = firestoreFunctions.query(
             userCollection(uid, "conversations"),
             firestoreFunctions.orderBy("updatedAt", "desc"),
@@ -3162,21 +3191,156 @@
           });
           window.iaraCloudReady = true;
           window.iaraSetCloudState("ready", "Sincronizado");
+          updateProfileActionStates();
         } catch (error) {
           if (currentUser?.uid !== uid) return;
           window.iaraCloudReady = false;
           window.iaraSetCloudState("error", describeFirestoreError(error));
         }
       } else {
+        customProfilePhoto = "";
         if (stopConversationUpdates) {
           stopConversationUpdates();
           stopConversationUpdates = null;
         }
         window.iaraResetAccountState();
+        updateProfileActionStates();
         authGateStatus.textContent = "Faça login ou crie uma conta para continuar.";
         window.iaraSetCloudState("loading", "Entre para sincronizar seus dados");
       }
     }
+
+    function renderProfileAvatars(user, photoURL) {
+      const email = user?.email || "";
+      const fallback = email ? email.charAt(0).toLocaleUpperCase("pt-BR") : "V";
+      [profileAvatar, topbarAvatar, profilePageAvatar].forEach(avatar => {
+        avatar.replaceChildren();
+        if (photoURL) {
+          const image = document.createElement("img");
+          image.src = photoURL;
+          image.alt = "";
+          image.referrerPolicy = "no-referrer";
+          image.addEventListener("error", () => {
+            avatar.replaceChildren();
+            avatar.textContent = fallback;
+          }, { once: true });
+          avatar.append(image);
+        } else {
+          avatar.textContent = fallback;
+        }
+      });
+      profileGoogleConnect.hidden = Boolean(photoURL);
+      profileRemovePhoto.hidden = !customProfilePhoto;
+    }
+
+    async function readProfilePhoto(file) {
+      const maxUploadBytes = 10 * 1024 * 1024;
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        throw new Error("Escolha uma imagem JPG, PNG ou WebP.");
+      }
+      if (file.size > maxUploadBytes) {
+        throw new Error("A imagem deve ter no máximo 10 MB.");
+      }
+      const bitmap = await createImageBitmap(file);
+      try {
+        const canvas = document.createElement("canvas");
+        const size = 384;
+        canvas.width = size;
+        canvas.height = size;
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Não foi possível preparar a imagem neste navegador.");
+        const scale = Math.max(size / bitmap.width, size / bitmap.height);
+        const width = bitmap.width * scale;
+        const height = bitmap.height * scale;
+        context.drawImage(bitmap, (size - width) / 2, (size - height) / 2, width, height);
+        let quality = 0.86;
+        let blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", quality));
+        while (blob && blob.size > 300 * 1024 && quality > 0.5) {
+          quality -= 0.1;
+          blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", quality));
+        }
+        if (!blob) throw new Error("Não foi possível converter a imagem.");
+        if (blob.size > 300 * 1024) throw new Error("Não foi possível reduzir a imagem o suficiente. Escolha outra foto.");
+        return await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error("Não foi possível ler a imagem."));
+          reader.readAsDataURL(blob);
+        });
+      } finally {
+        bitmap.close();
+      }
+    }
+
+    profileChoosePhoto.addEventListener("click", () => profilePhotoInput.click());
+    profilePhotoInput.addEventListener("change", async () => {
+      const [file] = profilePhotoInput.files || [];
+      profilePhotoInput.value = "";
+      if (!file || !currentUser || profileBusy) return;
+      const user = currentUser;
+      profileBusy = true;
+      updateProfileActionStates();
+      profileSyncStatus.textContent = "Preparando e salvando sua foto...";
+      try {
+        const photoDataUrl = await readProfilePhoto(file);
+        if (currentUser?.uid !== user.uid) throw new Error("Sua sessão mudou. Entre novamente para atualizar a foto.");
+        await window.iaraCloud.saveProfilePhoto(user.uid, photoDataUrl);
+        if (currentUser?.uid !== user.uid) return;
+        customProfilePhoto = photoDataUrl;
+        renderProfileAvatars(user, customProfilePhoto);
+        profileSyncStatus.textContent = "Foto salva e sincronizada com sua conta.";
+      } catch (error) {
+        profileSyncStatus.textContent = error.message || "Não foi possível salvar a foto.";
+      } finally {
+        profileBusy = false;
+        updateProfileActionStates();
+      }
+    });
+
+    profileRemovePhoto.addEventListener("click", async () => {
+      if (!currentUser || !customProfilePhoto || profileBusy) return;
+      profileBusy = true;
+      updateProfileActionStates();
+      profileSyncStatus.textContent = "Removendo foto personalizada...";
+      try {
+        const user = currentUser;
+        await window.iaraCloud.removeProfileSettings(user.uid);
+        if (currentUser?.uid !== user.uid) return;
+        customProfilePhoto = "";
+        const googleProfile = user.providerData?.find(item => item.providerId === "google.com");
+        renderProfileAvatars(user, user.photoURL || googleProfile?.photoURL || "");
+        profileSyncStatus.textContent = "Foto personalizada removida.";
+      } catch (error) {
+        profileSyncStatus.textContent = error.message || "Não foi possível remover a foto.";
+      } finally {
+        profileBusy = false;
+        updateProfileActionStates();
+      }
+    });
+
+    profileResetSettings.addEventListener("click", async () => {
+      if (!currentUser || profileBusy) return;
+      const confirmed = window.confirm("Restaurar as configurações iniciais? Isso removerá a chave NVIDIA, voltará ao modelo padrão e apagará a foto personalizada. Sua conta, foto do Google e conversas serão mantidas.");
+      if (!confirmed) return;
+      profileBusy = true;
+      updateProfileActionStates();
+      profileSyncStatus.textContent = "Restaurando configurações iniciais...";
+      try {
+        const user = currentUser;
+        await window.iaraCloud.resetAppSettings(user.uid);
+        if (currentUser?.uid !== user.uid) return;
+        customProfilePhoto = "";
+        window.iaraApplyApiSettings(null);
+        const googleProfile = user.providerData?.find(item => item.providerId === "google.com");
+        renderProfileAvatars(user, user.photoURL || googleProfile?.photoURL || "");
+        profileSyncStatus.textContent = "Configurações restauradas. Sua conta e suas conversas foram mantidas.";
+      } catch (error) {
+        profileSyncStatus.textContent = error.message || "Não foi possível restaurar as configurações.";
+      } finally {
+        profileBusy = false;
+        updateProfileActionStates();
+      }
+    });
 
     toggleAuthModeButton.addEventListener("click", () => {
       authMode = authMode === "sign-in" ? "sign-up" : "sign-in";
