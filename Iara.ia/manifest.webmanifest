@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Iara.ia — seu espaço de ideias",
-  "short_name": "Iara.ia",
-  "description": "Converse com a Iara.ia, organize ideias e tire dúvidas.",
+  "name": "iara.ia — seu espaço de ideias",
+  "short_name": "iara.ia",
+  "description": "Converse com a iara.ia, organize ideias e tire dúvidas.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",

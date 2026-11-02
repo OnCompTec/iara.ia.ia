@@ -7,7 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Iara.ia — seu espaço de ideias</title>
+  <title>iara.ia — seu espaço de ideias</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="iara-icon-192.png">
   <link rel="apple-touch-icon" href="iara-apple-touch-icon.png">
@@ -344,6 +344,7 @@
       font-size: 11px;
     }
     .model-selector:disabled { opacity: .7; cursor: not-allowed; }
+    .connection-selector { max-width: min(190px, 22vw); }
 
     .model-dot {
       width: 7px;
@@ -563,10 +564,51 @@
 
     .provider-footer a { color: #c5d89d; }
 
+    .provider-connections {
+      display: grid;
+      gap: 8px;
+      max-height: min(32vh, 240px);
+      padding: 14px 25px 4px;
+      overflow-y: auto;
+    }
+
+    .provider-connection-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid #30312b;
+      border-radius: 10px;
+      background: #1b1c18;
+    }
+
+    .provider-connection-card.active { border-color: #68744a; }
+    .provider-connection-name { overflow: hidden; color: var(--text); font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .provider-connection-meta { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .provider-connection-status { color: #c5f277; font-size: 10px; }
+    .provider-connection-buttons { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+    .provider-connection-buttons button, .provider-connection-actions button {
+      min-height: 31px;
+      padding: 6px 9px;
+      border: 1px solid #45483a;
+      border-radius: 8px;
+      color: #dedfd8;
+      background: #20211d;
+      font: inherit;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .provider-connection-buttons button:disabled { opacity: .55; cursor: not-allowed; }
+    .provider-connection-buttons .connection-delete { color: #d1a7a0; }
+    .provider-connections-empty { margin: 0; color: var(--muted); font-size: 11px; }
+    .provider-connection-actions { padding: 12px 25px 0; }
+    .api-settings-form[hidden] { display: none; }
+
     .api-settings-form {
       display: grid;
       gap: 14px;
-      padding: 20px 25px 24px;
+      padding: 14px 25px 24px;
       overflow-y: auto;
     }
 
@@ -578,7 +620,7 @@
       font-weight: 600;
     }
 
-    .api-field input {
+    .api-field input, .api-field select {
       width: 100%;
       padding: 11px 13px;
       border: 1px solid #34362e;
@@ -590,7 +632,23 @@
       font-size: 13px;
     }
 
-    .api-field input:focus { border-color: #646b4e; }
+    .api-field input:focus, .api-field select:focus { border-color: #646b4e; }
+
+    .api-model-test-row { display: flex; gap: 8px; align-items: center; }
+    .api-model-test-row input { flex: 1; min-width: 0; }
+    .api-model-test {
+      min-height: 39px;
+      padding: 8px 11px;
+      border: 1px solid #45483a;
+      border-radius: 9px;
+      color: #dedfd8;
+      background: #20211d;
+      font: inherit;
+      font-size: 11px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .api-model-test:disabled { opacity: .55; cursor: wait; }
 
     .api-help, .api-warning {
       margin: 0;
@@ -1106,7 +1164,8 @@
       .mobile-menu-trigger { display: inline-flex; }
       .model-label { min-width: 0; gap: 6px; font-size: 12px; }
       .model-provider { display: none; }
-      .model-selector { max-width: min(160px, 42vw); min-height: 32px; padding-left: 6px; font-size: 10px; }
+      .model-selector { max-width: min(132px, 36vw); min-height: 32px; padding-left: 6px; font-size: 10px; }
+      .connection-selector { max-width: min(116px, 32vw); }
       .topbar-actions { margin-left: auto; }
       .profile-trigger { min-height: 38px; padding-right: 9px; }
       .chat { width: 100%; padding: 0 14px; }
@@ -1139,6 +1198,8 @@
       .provider-list { padding-right: 17px; padding-left: 17px; }
       .provider-footer { padding-right: 17px; padding-left: 17px; }
       .api-settings-form { padding-right: 17px; padding-left: 17px; }
+      .provider-connections { padding-right: 17px; padding-left: 17px; }
+      .provider-connection-actions { padding-right: 17px; padding-left: 17px; }
       .auth-form { padding-right: 17px; padding-left: 17px; }
       .demo-badge { display: none; }
     }
@@ -1160,8 +1221,8 @@
       <div class="auth-gate-mark" aria-hidden="true">
         <img src="iara-logo.png" alt="">
       </div>
-      <h1 id="authGateTitle">Bem-vindo à Iara.ia</h1>
-      <p class="auth-gate-copy">Entre ou crie sua conta para acessar o chat e conversar com a Iara.ia.</p>
+      <h1 id="authGateTitle">Bem-vindo à iara.ia</h1>
+      <p class="auth-gate-copy">Entre ou crie sua conta para acessar o chat e conversar com a iara.ia.</p>
       <button class="auth-gate-button" id="openAuthGate" type="button" disabled>Conectando...</button>
       <p class="auth-gate-status" id="authGateStatus" role="status" aria-live="polite">Verificando sua sessão...</p>
     </div>
@@ -1173,7 +1234,7 @@
         <span class="brand-mark" aria-hidden="true">
           <img src="iara-logo.png" alt="">
         </span>
-        Iara.ia
+        iara.ai
       </div>
 
       <button class="new-chat" id="newChat" type="button">
@@ -1205,7 +1266,10 @@
         <div class="model-label">
           <span class="model-dot" aria-hidden="true"></span>
           <span class="model-provider" id="modelProviderLabel">Demonstração</span>
-          <select class="model-selector" id="modelSelector" aria-label="IA e modelo utilizados" title="Modelo de IA utilizado" disabled>
+          <select class="model-selector" id="connectionSelector" aria-label="Provedor e chave utilizados" title="Provedor e chave utilizados" disabled>
+            <option value="">Sem provedor conectado</option>
+          </select>
+          <select class="model-selector" id="modelSelector" aria-label="Modelo de IA utilizado" title="Modelo de IA utilizado" disabled>
             <option value="nvidia/nemotron-3.5-bolt-e4b">nvidia/nemotron-3.5-bolt-e4b</option>
           </select>
         </div>
@@ -1217,7 +1281,7 @@
         </div>
       </header>
 
-      <section class="chat" aria-label="Chat com Iara.ia">
+      <section class="chat" aria-label="Chat com iara.ia">
         <div class="messages" id="messages" aria-live="polite">
           <div class="welcome" id="welcome">
             <div class="welcome-icon" aria-hidden="true">
@@ -1254,7 +1318,7 @@
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </form>
-          <p class="disclaimer" id="chatDisclaimer">Configure uma chave NVIDIA NIM para usar respostas de IA.</p>
+          <p class="disclaimer" id="chatDisclaimer">Adicione uma conexão de provedor de IA para usar respostas.</p>
           <p class="composer-status" id="composerStatus" role="status" aria-live="polite"></p>
         </div>
       </section>
@@ -1286,7 +1350,7 @@
       <header class="provider-header">
         <div>
           <h2 class="provider-title" id="profileTitle">Meu perfil</h2>
-          <p class="provider-description">Sua conta e preferências da Iara.ia.</p>
+          <p class="provider-description">Sua conta e preferências da iara.ia.</p>
         </div>
         <button class="dialog-close" id="closeProfile" type="button" aria-label="Fechar perfil">×</button>
       </header>
@@ -1317,28 +1381,59 @@
     <div class="provider-dialog-inner">
       <header class="provider-header">
         <div>
-          <h2 class="provider-title" id="apiSettingsTitle">Conectar NVIDIA NIM</h2>
-          <p class="provider-description">Configure a chave da API para usar o modelo NVIDIA NIM neste chat.</p>
+          <h2 class="provider-title" id="apiSettingsTitle">Conexões de IA</h2>
+          <p class="provider-description">Adicione quantas conexões quiser e alterne entre provedores e modelos.</p>
         </div>
         <button class="dialog-close" id="closeApiSettings" type="button" aria-label="Fechar configurações">×</button>
       </header>
-      <form class="api-settings-form" id="apiSettingsForm">
+      <div class="provider-connections" id="providerConnections"></div>
+      <div class="provider-connection-actions" id="providerConnectionActions">
+        <button class="api-save" id="addProviderConnection" type="button">Adicionar conexão</button>
+      </div>
+      <form class="api-settings-form" id="apiSettingsForm" hidden>
+        <input id="connectionIdInput" type="hidden">
         <div class="api-field">
-          <label for="apiKeyInput">Chave API NVIDIA</label>
-          <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="Cole sua chave nvapi-..." required>
-          <p class="api-help">Crie ou gerencie sua chave no <a href="https://build.nvidia.com/settings/api-keys" target="_blank" rel="noopener noreferrer">painel oficial NVIDIA</a>.</p>
+          <label for="providerPresetInput">Provedor</label>
+          <select id="providerPresetInput" required>
+            <option value="nvidia">NVIDIA NIM</option>
+            <option value="openrouter">OpenRouter</option>
+            <option value="groq">Groq</option>
+            <option value="cerebras">Cerebras</option>
+            <option value="google">Google AI Studio</option>
+            <option value="mistral">Mistral AI</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="sambanova">SambaNova</option>
+            <option value="custom">Outro (OpenAI-compatible)</option>
+          </select>
         </div>
         <div class="api-field">
-          <label for="modelInput">ID do modelo NIM</label>
-          <input id="modelInput" type="text" list="nvidiaModels" autocomplete="off" spellcheck="false" required>
+          <label for="connectionNameInput">Nome desta conexão</label>
+          <input id="connectionNameInput" type="text" maxlength="60" placeholder="Ex.: Groq pessoal" required>
+        </div>
+        <div class="api-field" id="providerBaseUrlField" hidden>
+          <label for="providerBaseUrlInput">Endpoint base HTTPS</label>
+          <input id="providerBaseUrlInput" type="url" autocomplete="url" placeholder="https://api.exemplo.com/v1" maxlength="500">
+          <p class="api-help">Aceita endpoints públicos HTTPS compatíveis com OpenAI Chat Completions. Endereços locais, IPs diretos e portas fora de 443 são bloqueados.</p>
+        </div>
+        <div class="api-field">
+          <label for="apiKeyInput">Chave API</label>
+          <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave deste provedor" required>
+          <p class="api-help">As chaves ficam na sua conta e são enviadas ao provedor selecionado. Confira limites, cobrança e política de dados no site oficial.</p>
+        </div>
+        <div class="api-field">
+          <label for="modelInput">ID do modelo</label>
+          <div class="api-model-test-row">
+            <input id="modelInput" type="text" list="nvidiaModels" autocomplete="off" spellcheck="false" required>
+            <button class="api-model-test" id="testModelButton" type="button">Testar modelo</button>
+          </div>
           <datalist id="nvidiaModels"></datalist>
-          <p class="api-help" id="modelHelp">Escolha um modelo de chat listado no endpoint NVIDIA. Se o catálogo estiver indisponível, você pode informar manualmente um ID compatível. Exemplo: <code>nvidia/nemotron-3.5-bolt-e4b</code>. Consulte o <a href="https://build.nvidia.com/models" target="_blank" rel="noopener noreferrer">catálogo NVIDIA NIM</a>.</p>
+          <p class="api-help" id="modelHelp">O catálogo não confirma se o modelo aceita chat ou está respondendo. Teste antes de usar; o teste envia uma mensagem curta e pode consumir cota.</p>
         </div>
-        <p class="api-warning">A chave será salva na sua conta para uso em outros dispositivos e enviada diretamente à NVIDIA ao conversar. Ela fica acessível a quem entrar nesta conta e pode ser inspecionada no navegador. Use uma chave com limites e revogue-a se for exposta.</p>
+        <p class="api-warning">Você pode salvar várias chaves. Elas ficam acessíveis no navegador a quem entrar nesta conta. O chat suporta APIs compatíveis com OpenAI Chat Completions; planos gratuitos e limites dependem de cada provedor.</p>
         <div class="api-settings-status" id="apiSettingsStatus" role="status" aria-live="polite"></div>
         <div class="api-settings-actions">
-          <button class="api-remove" id="removeApiKey" type="button">Remover chave</button>
-          <button class="api-save" type="submit">Salvar configuração</button>
+          <button class="api-remove" id="cancelProviderConnection" type="button">Cancelar</button>
+          <button class="api-save" type="submit">Salvar conexão</button>
         </div>
       </form>
     </div>
@@ -1348,7 +1443,7 @@
     <div class="provider-dialog-inner">
       <header class="provider-header">
         <div>
-          <h2 class="provider-title" id="authTitle">Entrar na Iara.ia</h2>
+          <h2 class="provider-title" id="authTitle">Entrar na iara.ia</h2>
           <p class="provider-description" id="authDescription">Acesse sua conta com e-mail e senha.</p>
         </div>
         <button class="dialog-close" id="closeAuth" type="button" aria-label="Fechar cadastro e login">×</button>
@@ -1387,6 +1482,7 @@
     const messages = document.querySelector("#messages");
     const welcome = document.querySelector("#welcome");
     const historySearch = document.querySelector("#historySearch");
+    const connectionSelector = document.querySelector("#connectionSelector");
     const modelSelector = document.querySelector("#modelSelector");
     const modelProviderLabel = document.querySelector("#modelProviderLabel");
     const attachButton = document.querySelector("#attachButton");
@@ -1402,8 +1498,18 @@
     const providerList = document.querySelector("#providerList");
     const apiSettingsDialog = document.querySelector("#apiSettingsDialog");
     const apiSettingsForm = document.querySelector("#apiSettingsForm");
+    const providerConnectionsList = document.querySelector("#providerConnections");
+    const providerConnectionActions = document.querySelector("#providerConnectionActions");
+    const addProviderConnection = document.querySelector("#addProviderConnection");
+    const cancelProviderConnection = document.querySelector("#cancelProviderConnection");
+    const connectionIdInput = document.querySelector("#connectionIdInput");
+    const providerPresetInput = document.querySelector("#providerPresetInput");
+    const connectionNameInput = document.querySelector("#connectionNameInput");
+    const providerBaseUrlField = document.querySelector("#providerBaseUrlField");
+    const providerBaseUrlInput = document.querySelector("#providerBaseUrlInput");
     const apiKeyInput = document.querySelector("#apiKeyInput");
     const modelInput = document.querySelector("#modelInput");
+    const testModelButton = document.querySelector("#testModelButton");
     const apiSettingsStatus = document.querySelector("#apiSettingsStatus");
     const profileApiStatus = document.querySelector("#profileApiStatus");
     const chatDisclaimer = document.querySelector("#chatDisclaimer");
@@ -1441,11 +1547,28 @@
     const deletingConversationIds = new Set();
     let accountGeneration = 0;
     let conversationLoadVersion = 0;
-    const nvidiaEndpoint = "/api/nvidia?action=chat";
-    const modelsEndpoint = "/api/nvidia?action=models";
+    const providerEndpoint = "/api/nvidia";
     const defaultModel = "nvidia/nemotron-3.5-bolt-e4b";
     const suggestedChatModel = "nvidia/nemotron-3.5-bolt-e4b";
+    const providerPresets = {
+      nvidia: { name: "NVIDIA NIM", baseUrl: "https://integrate.api.nvidia.com/v1" },
+      openrouter: { name: "OpenRouter", baseUrl: "https://openrouter.ai/api/v1" },
+      groq: { name: "Groq", baseUrl: "https://api.groq.com/openai/v1" },
+      cerebras: { name: "Cerebras", baseUrl: "https://api.cerebras.ai/v1" },
+      google: { name: "Google AI Studio", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai" },
+      mistral: { name: "Mistral AI", baseUrl: "https://api.mistral.ai/v1" },
+      deepseek: { name: "DeepSeek", baseUrl: "https://api.deepseek.com/v1" },
+      sambanova: { name: "SambaNova", baseUrl: "https://api.sambanova.ai/v1" },
+      custom: { name: "", baseUrl: "" }
+    };
     let availableNvidiaModels = [];
+    const modelAvailability = new Map();
+    let testingModel = false;
+    let providerConnections = [];
+    let activeConnectionId = "";
+    let providerBaseUrl = providerPresets.nvidia.baseUrl;
+    let providerName = "";
+    let editingConnectionId = "";
     let authMode = "sign-in";
     let currentUser = null;
     let authBusy = false;
@@ -1492,13 +1615,20 @@
     });
 
     function updateApiStatus() {
-      profileApiStatus.textContent = apiKey ? "NVIDIA NIM CONFIGURADA" : "MODO DEMONSTRAÇÃO";
+      profileApiStatus.textContent = apiKey
+        ? `${providerName || "Provedor"} ATIVO · ${providerConnections.length} CONEXÕES`
+        : "MODO DEMONSTRAÇÃO";
       profileApiStatus.classList.toggle("configured", Boolean(apiKey));
       chatDisclaimer.textContent = apiKey
         ? `TXT, código, CSV e JSON · até ${MAX_FILE_MB} MB/arquivo, ${MAX_ATTACHMENTS} arquivos e ${MAX_ATTACHMENT_CHARS.toLocaleString("pt-BR")} caracteres por envio. O conteúdo fica no histórico e segue ao modelo; o limite de análise também depende do contexto do modelo. Evite dados sensíveis.`
-        : "Configure uma chave NVIDIA NIM para respostas de IA e análise de arquivos.";
+        : "Adicione uma conexão de provedor de IA para usar respostas e análise de arquivos.";
+      renderConnectionSelector();
       renderModelSelector();
       updateComposer();
+    }
+
+    function modelAvailabilityKey(id, connectionId = activeConnectionId) {
+      return `${connectionId}:${id}`;
     }
 
     function renderModelSelector() {
@@ -1507,7 +1637,15 @@
       models.forEach(id => {
         const option = document.createElement("option");
         option.value = id;
-        option.textContent = id;
+        const status = modelAvailability.get(modelAvailabilityKey(id));
+        const statusLabel = status === "active"
+          ? " · ativo para chat"
+          : status === "unavailable"
+            ? " · indisponível para chat"
+            : status === "restricted"
+              ? " · sem acesso nesta chave"
+              : " · não testado";
+        option.textContent = `${id}${statusLabel}`;
         modelSelector.append(option);
       });
       const manageOption = document.createElement("option");
@@ -1515,11 +1653,53 @@
       manageOption.textContent = "Trocar modelo...";
       modelSelector.append(manageOption);
       modelSelector.value = modelId;
-      modelProviderLabel.textContent = apiKey ? "NVIDIA NIM" : "Demonstração";
+      modelProviderLabel.textContent = apiKey ? providerName || "Provedor" : "Demonstração";
       modelSelector.title = apiKey
-        ? `Modelo utilizado: ${modelId}. Selecione “Trocar modelo...” para configurar outro ID.`
-        : "A demonstração não utiliza um modelo de IA. Configure uma chave NVIDIA para selecionar um modelo.";
+        ? `Modelo utilizado: ${modelId} — ${statusDescriptionsForModel(modelId)}. Selecione “Trocar modelo...” para configurar outra conexão ou modelo.`
+        : "A demonstração não utiliza um modelo de IA. Adicione uma conexão de provedor para usar um modelo.";
       modelSelector.disabled = !apiKey || sending || !window.iaraCloudReady;
+    }
+
+    function renderConnectionSelector() {
+      connectionSelector.replaceChildren();
+      if (!providerConnections.length) {
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = "Sem provedor conectado";
+        connectionSelector.append(empty);
+      }
+      providerConnections.forEach(connection => {
+        const option = document.createElement("option");
+        option.value = connection.id;
+        const status = modelAvailability.get(modelAvailabilityKey(connection.modelId, connection.id));
+        const statusLabel = status === "active"
+          ? " · ativo"
+          : status === "unavailable"
+            ? " · indisponível"
+            : status === "restricted"
+              ? " · sem acesso"
+              : " · não testado";
+        option.textContent = `${connection.name} · ${connection.modelId}${statusLabel}`;
+        connectionSelector.append(option);
+      });
+      connectionSelector.value = activeConnectionId || "";
+      connectionSelector.disabled = !providerConnections.length || sending || !window.iaraCloudReady;
+      connectionSelector.title = providerConnections.length
+        ? "Troque o provedor, a chave e o modelo usados no chat."
+        : "Adicione uma conexão nas configurações de IA.";
+    }
+
+    function statusDescriptionsForModel(id) {
+      const status = modelAvailability.get(modelAvailabilityKey(id));
+      if (status === "active") return "ativo para chat no teste mais recente";
+      if (status === "unavailable") return "não disponível para chat nesta chave";
+      if (status === "restricted") return "sem acesso para esta chave";
+      return "ainda não testado";
+    }
+
+    function clearModelAvailability() {
+      modelAvailability.clear();
+      renderModelSelector();
     }
 
     let composerStatusTimer;
@@ -1672,6 +1852,188 @@
       profileDialog.showModal();
     }
 
+    function renderProviderConnections() {
+      providerConnectionsList.replaceChildren();
+      if (!providerConnections.length) {
+        const empty = document.createElement("p");
+        empty.className = "provider-connections-empty";
+        empty.textContent = "Nenhuma conexão salva. Adicione uma chave e modelo para começar.";
+        providerConnectionsList.append(empty);
+        return;
+      }
+
+      providerConnections.forEach(connection => {
+        const card = document.createElement("div");
+        card.className = `provider-connection-card${connection.id === activeConnectionId ? " active" : ""}`;
+        const details = document.createElement("div");
+        const name = document.createElement("div");
+        name.className = "provider-connection-name";
+        name.textContent = connection.name;
+        const meta = document.createElement("div");
+        meta.className = "provider-connection-meta";
+        meta.textContent = `${connection.providerName} · ${connection.modelId}`;
+        const status = document.createElement("div");
+        status.className = "provider-connection-status";
+        status.textContent = connection.id === activeConnectionId
+          ? `Em uso · ${statusDescriptionsForConnection(connection)}`
+          : statusDescriptionsForConnection(connection);
+        details.append(name, meta, status);
+
+        const buttons = document.createElement("div");
+        buttons.className = "provider-connection-buttons";
+        const useButton = document.createElement("button");
+        useButton.type = "button";
+        useButton.textContent = connection.id === activeConnectionId ? "Em uso" : "Usar";
+        useButton.disabled = connection.id === activeConnectionId;
+        useButton.addEventListener("click", () => activateProviderConnection(connection.id));
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = "Editar";
+        editButton.addEventListener("click", () => showProviderConnectionForm(connection));
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "connection-delete";
+        deleteButton.textContent = "Remover";
+        deleteButton.addEventListener("click", () => deleteProviderConnection(connection.id));
+        buttons.append(useButton, editButton, deleteButton);
+        card.append(details, buttons);
+        providerConnectionsList.append(card);
+      });
+    }
+
+    function statusDescriptionsForConnection(connection) {
+      const status = modelAvailability.get(modelAvailabilityKey(connection.modelId, connection.id));
+      if (status === "active") return "ativo para chat no último teste";
+      if (status === "unavailable") return "indisponível para chat nesta chave";
+      if (status === "restricted") return "sem acesso nesta chave";
+      return "não testado";
+    }
+
+    function showProviderConnectionForm(connection = null) {
+      editingConnectionId = connection?.id || "";
+      connectionIdInput.value = connection?.id || "";
+      providerPresetInput.value = connection?.providerId || "nvidia";
+      connectionNameInput.value = connection?.name || providerPresets.nvidia.name;
+      providerBaseUrlInput.value = connection?.baseUrl || providerPresets.nvidia.baseUrl;
+      apiKeyInput.value = connection?.apiKey || "";
+      modelInput.value = connection?.modelId || defaultModel;
+      updateProviderPresetFields(false);
+      apiSettingsStatus.textContent = "";
+      providerConnectionsList.hidden = true;
+      providerConnectionActions.hidden = true;
+      apiSettingsForm.hidden = false;
+      if (connection?.id) {
+        fetchProviderModels(connection.apiKey, connection.baseUrl)
+          .then(models => {
+            if (editingConnectionId !== connection.id) return;
+            availableNvidiaModels = models;
+            renderNvidiaModels();
+          })
+          .catch(error => {
+            if (editingConnectionId === connection.id) apiSettingsStatus.textContent = error.message;
+          });
+      }
+      (connection ? modelInput : providerPresetInput).focus();
+    }
+
+    function updateProviderPresetFields(resetValues = true) {
+      const preset = providerPresets[providerPresetInput.value] || providerPresets.custom;
+      const custom = providerPresetInput.value === "custom";
+      providerBaseUrlField.hidden = !custom;
+      providerBaseUrlInput.required = custom;
+      if (resetValues) {
+        connectionNameInput.value = preset.name;
+        providerBaseUrlInput.value = preset.baseUrl;
+        apiKeyInput.value = "";
+        modelInput.value = providerPresetInput.value === "nvidia" ? defaultModel : "";
+        clearModelAvailability();
+      } else if (!custom && !providerBaseUrlInput.value) {
+        providerBaseUrlInput.value = preset.baseUrl;
+      }
+    }
+
+    function getConnectionFormValues() {
+      const providerId = providerPresetInput.value;
+      const preset = providerPresets[providerId] || providerPresets.custom;
+      return {
+        id: editingConnectionId || crypto.randomUUID(),
+        providerId,
+        providerName: preset.name || connectionNameInput.value.trim(),
+        name: connectionNameInput.value.trim(),
+        baseUrl: providerId === "custom" ? providerBaseUrlInput.value.trim() : preset.baseUrl,
+        apiKey: apiKeyInput.value.trim(),
+        modelId: modelInput.value.trim()
+      };
+    }
+
+    async function activateProviderConnection(id) {
+      const connection = providerConnections.find(item => item.id === id);
+      if (!connection || sending || !window.iaraCloudReady || !window.iaraCloud) return;
+      const previousId = activeConnectionId;
+      applyActiveProviderConnection(connection);
+      renderProviderConnections();
+      try {
+        await window.iaraCloud.setActiveProviderConnection(window.iaraCloud.userId, id);
+        setComposerStatus(`Conexão ativa: ${connection.name}.`);
+        fetchProviderModels(connection.apiKey, connection.baseUrl)
+          .then(models => {
+            if (activeConnectionId !== id) return;
+            availableNvidiaModels = models;
+            renderNvidiaModels();
+            renderProviderConnections();
+          })
+          .catch(error => {
+            if (activeConnectionId === id) setComposerStatus(error.message, true);
+          });
+      } catch (error) {
+        const previous = providerConnections.find(item => item.id === previousId);
+        if (previous) applyActiveProviderConnection(previous);
+        renderProviderConnections();
+        setComposerStatus(error.message || "Não foi possível ativar esta conexão.", true);
+      }
+    }
+
+    function applyActiveProviderConnection(connection) {
+      activeConnectionId = connection?.id || "";
+      apiKey = connection?.apiKey || "";
+      modelId = connection?.modelId || defaultModel;
+      providerBaseUrl = connection?.baseUrl || providerPresets.nvidia.baseUrl;
+      providerName = connection?.name || "";
+      modelInput.value = modelId;
+      apiKeyInput.value = apiKey;
+      availableNvidiaModels = [];
+      updateApiStatus();
+    }
+
+    async function deleteProviderConnection(id) {
+      const connection = providerConnections.find(item => item.id === id);
+      if (!connection || !window.iaraCloudReady || !window.iaraCloud) return;
+      if (!window.confirm(`Remover a conexão “${connection.name}” e sua chave salva?`)) return;
+      const remaining = providerConnections.filter(item => item.id !== id);
+      const nextActive = id === activeConnectionId ? remaining[0] || null : providerConnections.find(item => item.id === activeConnectionId);
+      try {
+        await window.iaraCloud.deleteProviderConnection(window.iaraCloud.userId, id, nextActive?.id || "");
+        providerConnections = remaining;
+        if (id === activeConnectionId) applyActiveProviderConnection(nextActive);
+        else renderConnectionSelector();
+        renderProviderConnections();
+        apiSettingsStatus.textContent = `Conexão removida: ${connection.name}.`;
+      } catch (error) {
+        apiSettingsStatus.textContent = error.message || "Não foi possível remover a conexão.";
+      }
+    }
+
+    addProviderConnection.addEventListener("click", () => showProviderConnectionForm());
+    cancelProviderConnection.addEventListener("click", () => {
+      editingConnectionId = "";
+      apiSettingsForm.hidden = true;
+      providerConnectionsList.hidden = false;
+      providerConnectionActions.hidden = false;
+      renderProviderConnections();
+    });
+    providerPresetInput.addEventListener("change", () => updateProviderPresetFields());
+    connectionSelector.addEventListener("change", () => activateProviderConnection(connectionSelector.value));
+
     profileTrigger.addEventListener("click", openProfile);
     openProfileSidebar.addEventListener("click", openProfile);
     document.querySelector("#closeProfile").addEventListener("click", () => profileDialog.close());
@@ -1680,21 +2042,11 @@
     });
     document.querySelector("#profileOpenApiSettings").addEventListener("click", () => {
       profileDialog.close();
+      renderProviderConnections();
+      apiSettingsForm.hidden = true;
+      providerConnectionsList.hidden = false;
+      providerConnectionActions.hidden = false;
       apiSettingsDialog.showModal();
-      apiKeyInput.value = apiKey;
-      modelInput.value = modelId;
-      apiSettingsStatus.textContent = "";
-      apiKeyInput.focus();
-      if (apiKey) {
-        fetchNvidiaModels(apiKey)
-          .then(models => {
-            availableNvidiaModels = models;
-            renderNvidiaModels();
-          })
-          .catch(error => {
-            apiSettingsStatus.textContent = error.message;
-          });
-      }
     });
     document.querySelector("#profileOpenProviders").addEventListener("click", () => {
       profileDialog.close();
@@ -1792,39 +2144,34 @@
 
     apiSettingsForm.addEventListener("submit", async event => {
       event.preventDefault();
-      const newKey = apiKeyInput.value.trim();
-      let newModel = modelInput.value.trim();
-      if (!newKey || !newModel) {
-        apiSettingsStatus.textContent = "Informe a chave e o ID do modelo.";
+      const connection = getConnectionFormValues();
+      if (!connection.name || !connection.apiKey || !connection.modelId) {
+        apiSettingsStatus.textContent = "Informe o nome, a chave API e o ID do modelo.";
         return;
       }
-
-      apiSettingsStatus.textContent = "Validando modelo na NVIDIA...";
-      let modelCatalogAvailable = availableNvidiaModels.length > 0 && newKey === apiKey;
-      try {
-        if (!availableNvidiaModels.length || newKey !== apiKey) {
-          availableNvidiaModels = await fetchNvidiaModels(newKey);
-          modelCatalogAvailable = true;
-          renderNvidiaModels();
-        }
-      } catch (error) {
-        modelCatalogAvailable = false;
-        const catalogMessage = error.message.includes("trusted folder")
-          ? "Prévia local do VS Code detectada: o navegador bloqueou a chamada da API. Sirva o site por HTTPS/Vercel para validar o modelo."
-          : error.message;
-        apiSettingsStatus.textContent = `${catalogMessage} Você pode informar manualmente um ID de modelo compatível.`;
-      }
-
-      newModel = modelInput.value.trim();
-      if (!newModel || newModel.length > 160 || !/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(newModel)) {
+      if (
+        connection.name.length > 60 ||
+        connection.apiKey.length > 4096 ||
+        connection.modelId.length > 160 ||
+        !/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(connection.modelId)
+      ) {
         apiSettingsStatus.textContent = "Informe um ID de modelo válido (até 160 caracteres, sem espaços).";
         return;
       }
-      if (modelCatalogAvailable && !availableNvidiaModels.includes(newModel)) {
-        apiSettingsStatus.textContent = `Modelo não encontrado no endpoint NVIDIA. Escolha um ID da lista, por exemplo: ${suggestedChatModel}.`;
-        if (availableNvidiaModels.includes(suggestedChatModel)) {
-          modelInput.value = suggestedChatModel;
-        }
+      if (
+        providerPresetInput.value === "custom" &&
+        (!/^https:\/\//i.test(connection.baseUrl) || connection.baseUrl.length > 500)
+      ) {
+        apiSettingsStatus.textContent = "O endpoint personalizado precisa ser uma URL HTTPS válida.";
+        providerBaseUrlInput.focus();
+        return;
+      }
+      if (
+        connection.apiKey === apiKey &&
+        connection.baseUrl === providerBaseUrl &&
+        ["unavailable", "restricted"].includes(modelAvailability.get(modelAvailabilityKey(connection.modelId, connection.id)))
+      ) {
+        apiSettingsStatus.textContent = `O modelo foi identificado como ${statusDescriptionsForModel(connection.modelId)}. Teste outro modelo antes de salvar.`;
         return;
       }
 
@@ -1832,28 +2179,145 @@
         if (!window.iaraCloudReady || !window.iaraCloud) {
           throw new Error("A sincronização ainda não está disponível. Confira a conexão com a internet e tente novamente.");
         }
-        apiSettingsStatus.textContent = "Salvando configuração...";
-        await window.iaraCloud.saveApiSettings(window.iaraCloud.userId, { apiKey: newKey, modelId: newModel });
-        apiKey = newKey;
-        modelId = newModel;
-        apiSettingsStatus.textContent = modelCatalogAvailable
-          ? "Configuração salva na sua conta e disponível nos seus dispositivos."
-          : "Configuração salva, mas o modelo não foi validado. Confira o ID e teste uma mensagem.";
+        apiSettingsStatus.textContent = "Salvando conexão...";
+        await window.iaraCloud.saveProviderConnection(window.iaraCloud.userId, connection);
+        const draftStatus = modelAvailability.get(modelAvailabilityKey(connection.modelId, "__draft__"));
+        providerConnections = [
+          ...providerConnections.filter(item => item.id !== connection.id),
+          connection
+        ];
+        if (draftStatus) {
+          modelAvailability.delete(modelAvailabilityKey(connection.modelId, "__draft__"));
+          modelAvailability.set(modelAvailabilityKey(connection.modelId, connection.id), draftStatus);
+        }
+        applyActiveProviderConnection(connection);
+        renderProviderConnections();
+        apiSettingsForm.hidden = true;
+        providerConnectionsList.hidden = false;
+        providerConnectionActions.hidden = false;
+        apiSettingsStatus.textContent = `Conexão “${connection.name}” salva e ativada. Teste o modelo para confirmar que aceita chat.`;
+        fetchProviderModels(connection.apiKey, connection.baseUrl)
+          .then(models => {
+            if (activeConnectionId !== connection.id) return;
+            availableNvidiaModels = models;
+            renderNvidiaModels();
+            renderProviderConnections();
+          })
+          .catch(error => {
+            if (activeConnectionId === connection.id) apiSettingsStatus.textContent = `Conexão salva. ${error.message}`;
+          });
       } catch (error) {
-        apiSettingsStatus.textContent = error.message || "Não foi possível salvar a configuração.";
-        return;
+        apiSettingsStatus.textContent = error.message || "Não foi possível salvar a conexão.";
       }
-      updateApiStatus();
     });
 
-    async function fetchNvidiaModels(key) {
+    apiKeyInput.addEventListener("input", clearModelAvailability);
+    testModelButton.addEventListener("click", async () => {
+      const connection = getConnectionFormValues();
+      const key = apiKeyInput.value.trim();
+      const id = modelInput.value.trim();
+      if (!key || key.length > 4096) {
+        apiSettingsStatus.textContent = "Informe uma chave de API válida antes de testar.";
+        apiKeyInput.focus();
+        return;
+      }
+      if (!id || id.length > 160 || !/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(id)) {
+        apiSettingsStatus.textContent = "Informe um ID de modelo válido antes de testar.";
+        modelInput.focus();
+        return;
+      }
+
+      testingModel = true;
+      testModelButton.disabled = true;
+      testModelButton.textContent = "Testando...";
+      const statusId = connectionIdInput.value || "__draft__";
+      const statusKey = modelAvailabilityKey(id, statusId);
+      modelAvailability.delete(statusKey);
+      renderModelSelector();
+      apiSettingsStatus.textContent = `Testando ${id} em ${connection.name} com uma solicitação curta...`;
+
+      try {
+        const response = await fetch(`${providerEndpoint}?action=chat`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${key}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            baseUrl: connection.baseUrl,
+            model: id,
+            messages: [{ role: "user", content: "Responda apenas: OK." }],
+            max_tokens: 8,
+            stream: false
+          })
+        });
+        const responseText = await response.text();
+        let data = null;
+        try {
+          data = responseText ? JSON.parse(responseText) : null;
+        } catch {
+          data = null;
+        }
+
+        if (!response.ok) {
+          const providerResponded = response.headers.get("X-Provider-Response") === "true";
+          const detail = data?.detail || data?.error?.message || data?.message || responseText
+            .replace(/<[^>]+>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .replace(/nvapi-[A-Za-z0-9_-]+/gi, "[chave ocultada]")
+            .slice(0, 220);
+          if (/file does not reside within a trusted folder/i.test(responseText)) {
+            throw new Error("A prévia local bloqueou o teste; a disponibilidade do modelo não foi verificada.");
+          }
+          if (response.status === 401) {
+            throw new Error("A chave do provedor foi recusada. Verifique a chave; o modelo não foi classificado.");
+          }
+          if (response.status === 403 && /rota de provedor desconhecida/i.test(String(detail))) {
+            throw new Error("A função da aplicação recusou a solicitação. O modelo não foi classificado.");
+          }
+          const modelUnavailable = /(?:model|modelo).{0,80}(?:not found|does not exist|not available|unsupported|unknown|invalid|não encontrado|inexistente|indisponível|não suportado|inválido)|(?:not found|does not exist|not available|unsupported|unknown|não encontrado|inexistente|indisponível|não suportado).{0,80}(?:model|modelo)/i.test(String(detail));
+          if (providerResponded && [400, 404, 422].includes(response.status) && modelUnavailable) {
+            modelAvailability.set(statusKey, "unavailable");
+            renderModelSelector();
+            apiSettingsStatus.textContent = `${id}: não disponível para chat em ${connection.name} (HTTP ${response.status}).`;
+            return;
+          }
+          if (providerResponded && response.status === 403) {
+            modelAvailability.set(statusKey, "restricted");
+            renderModelSelector();
+            apiSettingsStatus.textContent = `${id}: esta chave não tem acesso ao modelo (HTTP 403).`;
+            return;
+          }
+          throw new Error(`Teste inconclusivo (HTTP ${response.status}); o modelo não foi classificado.`);
+        }
+
+        const reply = data?.choices?.[0]?.message?.content;
+        if (typeof reply !== "string" || !reply.trim()) {
+          throw new Error("A resposta do modelo veio em formato inesperado; ele não foi classificado.");
+        }
+        modelAvailability.set(statusKey, "active");
+        renderModelSelector();
+        apiSettingsStatus.textContent = `${id}: ativo para chat em ${connection.name} nesta chave e no momento do teste.`;
+      } catch (error) {
+        apiSettingsStatus.textContent = error.message || "Não foi possível testar o modelo; ele não foi classificado.";
+      } finally {
+        testingModel = false;
+        testModelButton.disabled = false;
+        testModelButton.textContent = "Testar modelo";
+      }
+    });
+
+    async function fetchProviderModels(key, baseUrl) {
       let response;
       try {
-        response = await fetch(modelsEndpoint, {
+        const endpoint = new URL(`${providerEndpoint}?action=models`, window.location.href);
+        endpoint.searchParams.set("baseUrl", baseUrl);
+        response = await fetch(endpoint, {
           headers: { "Authorization": `Bearer ${key}` }
         });
       } catch {
-        throw new Error("Não foi possível acessar a função /api/nvidia da Vercel. Confirme se api/nvidia.js foi publicado junto com o site.");
+        throw new Error("Não foi possível acessar o provedor. Confira o endpoint e a conexão.");
       }
 
       let data;
@@ -1877,18 +2341,13 @@
           .slice(0, 250);
         if (response.status === 403) {
           if (/file does not reside within a trusted folder/i.test(responseText)) {
-            throw new Error("A prévia local do VS Code bloqueou a chamada da API (HTTP 403); a NVIDIA não foi consultada. Abra o app por HTTPS/Vercel ou use `vercel dev` para testar a função `/api/nvidia`. Você pode salvar um ID de modelo manualmente.");
+            throw new Error("A prévia local do VS Code bloqueou a chamada da API (HTTP 403); o provedor não foi consultado. Abra o app por HTTPS/Vercel.");
           }
-          throw new Error(`A NVIDIA recusou o acesso ao catálogo (HTTP 403)${detail ? `: ${String(detail).slice(0, 250)}` : "."} Verifique se a chave está ativa e autorizada para o NVIDIA NIM. Você ainda pode salvar um ID de modelo manualmente.`);
-        }
-        if (response.status === 404) {
-          throw new Error(detail
-            ? `A NVIDIA não encontrou este modelo no endpoint de chat: ${String(detail).slice(0, 250)}. Abra Configurar API e escolha um ID da lista de modelos.`
-            : `Modelo ou endpoint não encontrado (HTTP 404). Abra Configurar API e escolha um ID da lista de modelos; ${modelId} pode não aceitar chat completions.`);
+          throw new Error(`O provedor recusou o acesso ao catálogo (HTTP 403)${detail ? `: ${String(detail).slice(0, 250)}` : "."}`);
         }
         throw new Error(detail
-          ? `Falha ao validar a chave (HTTP ${response.status}): ${String(detail).slice(0, 250)}`
-          : `Falha ao validar a chave (HTTP ${response.status}). Confira a chave NVIDIA.`);
+          ? `Não foi possível listar modelos (HTTP ${response.status}): ${String(detail).slice(0, 250)}`
+          : `Não foi possível listar modelos (HTTP ${response.status}).`);
       }
 
       if (!data) {
@@ -1897,10 +2356,10 @@
           .replace(/\s+/g, " ")
           .trim()
           .slice(0, 180);
-        throw new Error(`A função NVIDIA respondeu em formato inválido (HTTP ${response.status})${bodyPreview ? `: ${bodyPreview}` : "."}`);
+        throw new Error(`O provedor respondeu em formato inválido (HTTP ${response.status})${bodyPreview ? `: ${bodyPreview}` : "."}`);
       }
       if (!Array.isArray(data.data)) {
-        throw new Error(`A NVIDIA respondeu sem uma lista de modelos reconhecida (HTTP ${response.status}).`);
+        throw new Error(`O provedor respondeu sem uma lista de modelos reconhecida (HTTP ${response.status}).`);
       }
       return data.data.map(item => item?.id).filter(id => typeof id === "string");
     }
@@ -1913,11 +2372,16 @@
         nvidiaModels.append(option);
       });
 
-      if (availableNvidiaModels.length && !availableNvidiaModels.includes(modelInput.value.trim())) {
+      if (
+        providerPresetInput.value === "nvidia" &&
+        availableNvidiaModels.length &&
+        !availableNvidiaModels.includes(modelInput.value.trim()) &&
+        modelAvailability.get(modelAvailabilityKey(modelInput.value.trim(), editingConnectionId || activeConnectionId)) !== "active"
+      ) {
         modelInput.value = suggestedChatModel;
-        apiSettingsStatus.textContent = `O modelo configurado não está disponível. Selecione um modelo listado; sugestão: ${suggestedChatModel}.`;
+        apiSettingsStatus.textContent = `O modelo configurado não aparece no catálogo. Selecione um modelo listado e teste sua disponibilidade para chat; sugestão: ${suggestedChatModel}.`;
       } else if (availableNvidiaModels.length) {
-        apiSettingsStatus.textContent = `${availableNvidiaModels.length} modelos carregados da NVIDIA.`;
+        apiSettingsStatus.textContent = `${availableNvidiaModels.length} modelos listados no catálogo. Isso não confirma disponibilidade para chat; teste o modelo desejado.`;
       }
       renderModelSelector();
     }
@@ -1926,55 +2390,41 @@
       const selectedModel = modelSelector.value;
       if (selectedModel === "__manage_model__") {
         modelSelector.value = modelId;
-        apiKeyInput.value = apiKey;
-        modelInput.value = modelId;
-        apiSettingsStatus.textContent = availableNvidiaModels.length
-          ? "Escolha um modelo listado ou informe outro ID compatível."
-          : "Catálogo indisponível; informe manualmente um ID de modelo compatível.";
+        renderProviderConnections();
+        providerConnectionsList.hidden = false;
+        providerConnectionActions.hidden = false;
+        apiSettingsForm.hidden = true;
         apiSettingsDialog.showModal();
-        modelInput.focus();
         return;
       }
       if (!apiKey || !availableNvidiaModels.includes(selectedModel) || !window.iaraCloudReady || !window.iaraCloud) {
         renderModelSelector();
         return;
       }
+      if (["unavailable", "restricted"].includes(modelAvailability.get(modelAvailabilityKey(selectedModel)))) {
+        modelSelector.value = modelId;
+        apiSettingsStatus.textContent = `O modelo foi identificado como ${statusDescriptionsForModel(selectedModel)} nesta conexão. Teste outro modelo antes de selecioná-lo.`;
+        apiSettingsDialog.showModal();
+        return;
+      }
       const previousModel = modelId;
       modelId = selectedModel;
       modelSelector.disabled = true;
       try {
-        await window.iaraCloud.saveApiSettings(window.iaraCloud.userId, { apiKey, modelId });
+        const activeConnection = providerConnections.find(item => item.id === activeConnectionId);
+        if (!activeConnection) throw new Error("A conexão ativa não foi encontrada.");
+        const updatedConnection = { ...activeConnection, modelId };
+        await window.iaraCloud.saveProviderConnection(window.iaraCloud.userId, updatedConnection);
+        providerConnections = providerConnections.map(item => item.id === activeConnectionId ? updatedConnection : item);
         modelInput.value = modelId;
         updateApiStatus();
+        renderProviderConnections();
         setComposerStatus(`Modelo salvo: ${modelId}`);
       } catch (error) {
         modelId = previousModel;
         renderModelSelector();
         setComposerStatus(error.message || "Não foi possível salvar o modelo selecionado.", true);
       }
-    });
-
-    document.querySelector("#removeApiKey").addEventListener("click", async () => {
-      if (!window.iaraCloudReady || !window.iaraCloud) {
-        apiSettingsStatus.textContent = "A sincronização não está disponível. A configuração não foi alterada.";
-        return;
-      }
-      apiSettingsStatus.textContent = "Removendo configuração da sua conta...";
-      try {
-        await window.iaraCloud.removeApiSettings(window.iaraCloud.userId);
-      } catch (error) {
-        apiSettingsStatus.textContent = error.message || "Não foi possível remover a configuração.";
-        return;
-      }
-      apiKey = "";
-      apiKeyInput.value = "";
-      modelId = defaultModel;
-      modelInput.value = defaultModel;
-      availableNvidiaModels = [];
-      pendingAttachments.length = 0;
-      renderPendingAttachments();
-      apiSettingsStatus.textContent = "Configuração removida da sua conta.";
-      updateApiStatus();
     });
 
     function updateComposer() {
@@ -1993,7 +2443,7 @@
       modelSelector.disabled = sending || !apiKey || !window.iaraCloudReady;
       attachButton.title = apiKey
         ? `Anexar até ${MAX_ATTACHMENTS} arquivos de texto/código, com até ${MAX_FILE_MB} MB cada`
-        : "Configure uma chave NVIDIA NIM para analisar arquivos.";
+        : "Adicione uma conexão de provedor de IA para analisar arquivos.";
     }
 
     function renderInlineMarkdown(parent, text) {
@@ -2384,25 +2834,48 @@
 
     window.iaraRenderConversations = renderConversationList;
     window.iaraApplyApiSettings = settings => {
-      apiKey = settings?.apiKey || "";
-      modelId = settings?.modelId || defaultModel;
-      apiKeyInput.value = apiKey;
-      modelInput.value = modelId;
+      const legacyConnection = settings?.apiKey
+        ? {
+            id: "legacy-nvidia",
+            providerId: "nvidia",
+            providerName: providerPresets.nvidia.name,
+            name: providerPresets.nvidia.name,
+            baseUrl: providerPresets.nvidia.baseUrl,
+            apiKey: settings.apiKey,
+            modelId: settings.modelId || defaultModel
+          }
+        : null;
+      providerConnections = Array.isArray(settings?.connections)
+        ? settings.connections.filter(connection =>
+            connection &&
+            typeof connection.id === "string" &&
+            typeof connection.apiKey === "string" &&
+            typeof connection.modelId === "string" &&
+            typeof connection.baseUrl === "string"
+          )
+        : [];
+      if (legacyConnection && !providerConnections.some(connection => connection.id === legacyConnection.id)) {
+        providerConnections.unshift(legacyConnection);
+      }
+      const requestedActiveId = settings?.activeConnectionId || legacyConnection?.id || providerConnections[0]?.id || "";
+      const activeConnection = providerConnections.find(connection => connection.id === requestedActiveId) || providerConnections[0] || null;
+      modelAvailability.clear();
       availableNvidiaModels = [];
-      updateApiStatus();
-      if (apiKey) {
-        const key = apiKey;
+      applyActiveProviderConnection(activeConnection);
+      if (activeConnection?.apiKey) {
+        const key = activeConnection.apiKey;
+        const url = activeConnection.baseUrl;
         const uid = window.iaraCloud?.userId;
-        fetchNvidiaModels(key)
+        fetchProviderModels(key, url)
           .then(models => {
-            if (apiKey !== key || window.iaraCloud?.userId !== uid) return;
+            if (apiKey !== key || providerBaseUrl !== url || window.iaraCloud?.userId !== uid) return;
             availableNvidiaModels = models;
             renderNvidiaModels();
           })
           .catch(error => {
-            if (apiKey !== key || window.iaraCloud?.userId !== uid) return;
+            if (apiKey !== key || providerBaseUrl !== url || window.iaraCloud?.userId !== uid) return;
             renderModelSelector();
-            setComposerStatus(error.message || "Não foi possível carregar os modelos NVIDIA.", true);
+            setComposerStatus(error.message || "Não foi possível carregar os modelos do provedor.", true);
           });
       }
     };
@@ -2417,7 +2890,12 @@
       editingMessageIndex = null;
       apiKey = "";
       modelId = defaultModel;
+      providerBaseUrl = providerPresets.nvidia.baseUrl;
+      providerName = "";
+      providerConnections = [];
+      activeConnectionId = "";
       availableNvidiaModels = [];
+      modelAvailability.clear();
       currentConversationId = null;
       conversation.length = 0;
       pendingAttachments.length = 0;
@@ -2482,13 +2960,14 @@
     }
 
     async function requestNvidiaReply(signal, onDelta) {
-      const response = await fetch(nvidiaEndpoint, {
+      const response = await fetch(`${providerEndpoint}?action=chat`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
+          baseUrl: providerBaseUrl,
           model: modelId,
           messages: getRequestContext(),
           max_tokens: 1024,
@@ -2518,20 +2997,20 @@
         }
         const detail = data?.detail || data?.error?.message || data?.message;
         if (response.status === 403 && /file does not reside within a trusted folder/i.test(responseBody)) {
-          throw new Error("A prévia local do VS Code bloqueou a função /api/nvidia (HTTP 403); a NVIDIA não foi consultada e o modelo não é a causa. Abra o app por HTTPS com a função publicada ou execute `vercel dev` fora da prévia.");
+          throw new Error("A prévia local do VS Code bloqueou a função do provedor (HTTP 403); o endpoint não foi consultado. Abra o app por HTTPS.");
         }
         throw new Error(detail
-          ? `Erro NVIDIA (HTTP ${response.status}): ${String(detail).slice(0, 350)}`
+          ? `Erro ${providerName || "do provedor"} (HTTP ${response.status}): ${String(detail).slice(0, 350)}`
           : bodyText
-            ? `Erro NVIDIA (HTTP ${response.status}): ${bodyText}. Confira o ID do modelo no catálogo e se o endpoint aceita esse modelo.`
-            : `Erro NVIDIA (HTTP ${response.status}). Confira o ID do modelo no catálogo e se o endpoint aceita esse modelo.`);
+            ? `Erro ${providerName || "do provedor"} (HTTP ${response.status}): ${bodyText}. Confira a chave, o endpoint e o modelo.`
+            : `Erro ${providerName || "do provedor"} (HTTP ${response.status}). Confira a chave, o endpoint e o modelo.`);
       }
 
       if (!response.body || !response.headers.get("content-type")?.toLocaleLowerCase().includes("text/event-stream")) {
         const data = await response.json().catch(() => null);
         const reply = data?.choices?.[0]?.message?.content;
         if (typeof reply !== "string" || !reply.trim()) {
-          throw new Error("A NVIDIA respondeu em um formato não reconhecido.");
+          throw new Error(`${providerName || "O provedor"} respondeu em um formato não reconhecido.`);
         }
         onDelta(reply);
         return reply.trim();
@@ -2555,10 +3034,10 @@
         try {
           data = JSON.parse(payload);
         } catch {
-          throw new Error("A NVIDIA enviou um trecho em formato inválido.");
+          throw new Error(`${providerName || "O provedor"} enviou um trecho em formato inválido.`);
         }
         if (data.error) {
-          throw new Error(data.error.message || "A NVIDIA não conseguiu gerar uma resposta.");
+          throw new Error(data.error.message || `${providerName || "O provedor"} não conseguiu gerar uma resposta.`);
         }
         const delta = data.choices?.[0]?.delta?.content || data.choices?.[0]?.message?.content;
         if (typeof delta === "string" && delta) {
@@ -2595,7 +3074,7 @@
         reader.releaseLock();
       }
       if (!reply.trim() && !signal.aborted) {
-        throw new Error("A NVIDIA encerrou a geração sem retornar texto.");
+        throw new Error(`${providerName || "O provedor"} encerrou a geração sem retornar texto.`);
       }
       return reply.trim();
     }
@@ -2769,7 +3248,7 @@
         } else {
           replyIsError = true;
           reply = error instanceof TypeError
-            ? "Não foi possível acessar a função /api/nvidia da Vercel. Confirme se api/nvidia.js foi publicado junto com o site."
+            ? "Não foi possível acessar o serviço de provedores. Confirme se a API está publicada e tente novamente."
             : error.message;
         }
       }
@@ -2934,7 +3413,7 @@
 
     function renderAuthMode() {
       const creatingAccount = authMode === "sign-up";
-      authTitle.textContent = creatingAccount ? "Criar conta na Iara.ia" : "Entrar na Iara.ia";
+      authTitle.textContent = creatingAccount ? "Criar conta na iara.ia" : "Entrar na iara.ia";
       authDescription.textContent = creatingAccount
         ? "Cadastre-se com seu e-mail e crie uma senha."
         : "Acesse sua conta com e-mail e senha.";
@@ -2997,17 +3476,59 @@
         get userId() {
           return currentUser?.uid || "";
         },
-        async saveApiSettings(expectedUid, settings) {
+        async loadProviderConnections(expectedUid) {
           requireCloudUser(expectedUid);
-          await firestoreFunctions.setDoc(userDocument(expectedUid, "settings", "api"), {
-            apiKey: settings.apiKey,
-            modelId: settings.modelId,
+          const [connectionsSnapshot, settingsSnapshot] = await Promise.all([
+            firestoreFunctions.getDocs(userCollection(expectedUid, "settings", "providers", "connections")),
+            firestoreFunctions.getDoc(userDocument(expectedUid, "settings", "providers"))
+          ]);
+          return {
+            connections: connectionsSnapshot.docs.map(item => ({ id: item.id, ...item.data() })),
+            activeConnectionId: settingsSnapshot.exists() ? settingsSnapshot.data().activeConnectionId || "" : ""
+          };
+        },
+        async saveProviderConnection(expectedUid, connection) {
+          requireCloudUser(expectedUid);
+          const batch = firestoreFunctions.writeBatch(firestoreDb);
+          const connectionRef = userDocument(expectedUid, "settings", "providers", "connections", connection.id);
+          batch.set(connectionRef, {
+            id: connection.id,
+            providerId: connection.providerId,
+            providerName: connection.providerName,
+            name: connection.name,
+            baseUrl: connection.baseUrl,
+            apiKey: connection.apiKey,
+            modelId: connection.modelId,
             updatedAt: firestoreFunctions.serverTimestamp()
           });
+          batch.set(userDocument(expectedUid, "settings", "providers"), {
+            activeConnectionId: connection.id,
+            updatedAt: firestoreFunctions.serverTimestamp()
+          }, { merge: true });
+          if (connection.id === "legacy-nvidia") {
+            batch.delete(userDocument(expectedUid, "settings", "api"));
+          }
+          await batch.commit();
         },
-        async removeApiSettings(expectedUid) {
+        async setActiveProviderConnection(expectedUid, connectionId) {
           requireCloudUser(expectedUid);
-          await firestoreFunctions.deleteDoc(userDocument(expectedUid, "settings", "api"));
+          await firestoreFunctions.setDoc(userDocument(expectedUid, "settings", "providers"), {
+            activeConnectionId: connectionId,
+            updatedAt: firestoreFunctions.serverTimestamp()
+          }, { merge: true });
+        },
+        async deleteProviderConnection(expectedUid, connectionId, nextActiveConnectionId) {
+          requireCloudUser(expectedUid);
+          const batch = firestoreFunctions.writeBatch(firestoreDb);
+          batch.delete(userDocument(expectedUid, "settings", "providers", "connections", connectionId));
+          batch.set(userDocument(expectedUid, "settings", "providers"), {
+            activeConnectionId: nextActiveConnectionId,
+            updatedAt: firestoreFunctions.serverTimestamp()
+          }, { merge: true });
+          if (connectionId === "legacy-nvidia") {
+            batch.delete(userDocument(expectedUid, "settings", "api"));
+          }
+          await batch.commit();
         },
         async saveProfilePhoto(expectedUid, photoDataUrl) {
           requireCloudUser(expectedUid);
@@ -3022,8 +3543,18 @@
         },
         async resetAppSettings(expectedUid) {
           requireCloudUser(expectedUid);
+          const connectionSnapshot = await firestoreFunctions.getDocs(
+            userCollection(expectedUid, "settings", "providers", "connections")
+          );
+          for (let start = 0; start < connectionSnapshot.docs.length; start += 450) {
+            requireCloudUser(expectedUid);
+            const connectionBatch = firestoreFunctions.writeBatch(firestoreDb);
+            connectionSnapshot.docs.slice(start, start + 450).forEach(item => connectionBatch.delete(item.ref));
+            await connectionBatch.commit();
+          }
           const batch = firestoreFunctions.writeBatch(firestoreDb);
           batch.delete(userDocument(expectedUid, "settings", "api"));
+          batch.delete(userDocument(expectedUid, "settings", "providers"));
           batch.delete(userDocument(expectedUid, "settings", "profile"));
           await batch.commit();
         },
@@ -3169,9 +3700,17 @@
           stopConversationUpdates = null;
         }
         try {
-          const settingsSnapshot = await firestoreFunctions.getDoc(userDocument(uid, "settings", "api"));
+          const [legacySettingsSnapshot, providerSettings] = await Promise.all([
+            firestoreFunctions.getDoc(userDocument(uid, "settings", "api")),
+            window.iaraCloud.loadProviderConnections(uid)
+          ]);
           if (currentUser?.uid !== uid) return;
-          window.iaraApplyApiSettings(settingsSnapshot.exists() ? settingsSnapshot.data() : null);
+          const legacySettings = legacySettingsSnapshot.exists() ? legacySettingsSnapshot.data() : null;
+          window.iaraApplyApiSettings({
+            connections: providerSettings.connections,
+            activeConnectionId: providerSettings.activeConnectionId,
+            ...(legacySettings || {})
+          });
           const profileSnapshot = await firestoreFunctions.getDoc(userDocument(uid, "settings", "profile"));
           if (currentUser?.uid !== uid) return;
           const profileSettings = profileSnapshot.exists() ? profileSnapshot.data() : null;
@@ -3325,7 +3864,7 @@
 
     profileResetSettings.addEventListener("click", async () => {
       if (!currentUser || profileBusy) return;
-      const confirmed = window.confirm("Restaurar as configurações iniciais? Isso removerá a chave NVIDIA, voltará ao modelo padrão e apagará a foto personalizada. Sua conta, foto do Google e conversas serão mantidas.");
+      const confirmed = window.confirm("Restaurar as configurações iniciais? Isso removerá todas as conexões e chaves de IA, apagará a foto personalizada e voltará ao modo de demonstração. Sua conta, foto do Google e conversas serão mantidas.");
       if (!confirmed) return;
       profileBusy = true;
       updateProfileActionStates();
@@ -3516,7 +4055,7 @@
     if ("serviceWorker" in navigator && location.protocol !== "file:") {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./service-worker.js")
-          .catch(error => console.error("Não foi possível registrar o service worker da Iara.ia:", error));
+          .catch(error => console.error("Não foi possível registrar o service worker da iara.ia:", error));
       });
     }
   </script>
