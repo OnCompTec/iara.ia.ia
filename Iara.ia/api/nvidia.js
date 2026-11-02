@@ -1,7 +1,7 @@
 const NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1";
 const MAX_MESSAGES = 80;
-const MAX_MESSAGE_LENGTH = 30000;
-const MAX_TOTAL_LENGTH = 100000;
+const MAX_MESSAGE_LENGTH = 190000;
+const MAX_TOTAL_LENGTH = 220000;
 
 function sendError(res, status, message) {
   res.status(status).json({ error: { message } });
