@@ -1241,7 +1241,7 @@
           <form class="composer" id="chatForm">
             <textarea id="prompt" rows="1" aria-label="Sua mensagem" placeholder="Escreva sua mensagem..."></textarea>
             <input id="fileInput" type="file" accept=".txt,.md,.markdown,.csv,.tsv,.json,.yaml,.yml,.xml,.html,.css,.js,.mjs,.cjs,.ts,.jsx,.tsx,.py,.java,.c,.h,.cpp,.hpp,.cs,.go,.rs,.php,.sql,.sh,.ps1,.log,.ini,.toml,.rb,.swift,.kt,.dart,.vue,.svelte,.astro" multiple hidden>
-            <button class="composer-tool" id="attachButton" type="button" aria-label="Anexar arquivos de texto ou código" title="Anexar arquivos de texto/código (até 1 MB cada)" disabled>📎</button>
+            <button class="composer-tool" id="attachButton" type="button" aria-label="Anexar arquivos de texto ou código" title="Anexar até 10 arquivos de texto/código, com até 20 MB cada" disabled>📎</button>
             <button class="composer-tool" id="voiceButton" type="button" aria-label="Iniciar ditado por voz" title="Ditado em português pelo navegador">🎙</button>
             <button class="stop-generation" id="stopButton" type="button" aria-label="Interromper geração" title="Interromper geração" hidden><span aria-hidden="true"></span></button>
             <button class="send" id="sendButton" type="submit" aria-label="Enviar mensagem" disabled>
@@ -1444,9 +1444,14 @@
     let activeRequestController = null;
     let editingMessageIndex = null;
     const pendingAttachments = [];
-    const MAX_FILE_BYTES = 1024 * 1024;
-    const MAX_ATTACHMENT_CHARS = 16000;
-    const MAX_ATTACHMENTS = 3;
+    const MAX_FILE_BYTES = 20 * 1024 * 1024;
+    const MAX_FILE_MB = 20;
+    const MAX_ATTACHMENT_CHARS = 150000;
+    const MAX_ATTACHMENTS = 10;
+    const MAX_PROMPT_CHARS = 30000;
+    const MAX_CHAT_MESSAGE_CHARS = 190000;
+    const MAX_CONTEXT_CHARS = 210000;
+    const MAX_CONTEXT_MESSAGE_CHARS = 190000;
     const allowedFileExtensions = new Set([
       "txt", "md", "markdown", "csv", "tsv", "json", "yaml", "yml", "xml", "html", "css",
       "js", "mjs", "cjs", "ts", "jsx", "tsx", "py", "java", "c", "h", "cpp", "hpp", "cs",
@@ -1479,7 +1484,7 @@
       profileApiStatus.textContent = apiKey ? "NVIDIA NIM CONFIGURADA" : "MODO DEMONSTRAÇÃO";
       profileApiStatus.classList.toggle("configured", Boolean(apiKey));
       chatDisclaimer.textContent = apiKey
-        ? "TXT, código, CSV e JSON · até 1 MB/arquivo e 16 mil caracteres. Anexos ficam no histórico e seguem ao modelo; evite dados sensíveis."
+        ? `TXT, código, CSV e JSON · até ${MAX_FILE_MB} MB/arquivo, ${MAX_ATTACHMENTS} arquivos e ${MAX_ATTACHMENT_CHARS.toLocaleString("pt-BR")} caracteres por envio. O conteúdo fica no histórico e segue ao modelo; o limite de análise também depende do contexto do modelo. Evite dados sensíveis.`
         : "Configure uma chave NVIDIA NIM para respostas de IA e análise de arquivos.";
       renderModelSelector();
       updateComposer();
@@ -1559,7 +1564,7 @@
           continue;
         }
         if (file.size > MAX_FILE_BYTES) {
-          warnings.push(`${file.name}: excede o limite de 1 MB.`);
+          warnings.push(`${file.name}: excede o limite de ${MAX_FILE_MB} MB.`);
           continue;
         }
         try {
@@ -1976,7 +1981,7 @@
       voiceButton.disabled = sending || !SpeechRecognitionApi || !window.iaraAuthenticated || !window.iaraCloudReady;
       modelSelector.disabled = sending || !apiKey || !window.iaraCloudReady;
       attachButton.title = apiKey
-        ? "Anexar arquivos de texto/código (até 1 MB cada)"
+        ? `Anexar até ${MAX_ATTACHMENTS} arquivos de texto/código, com até ${MAX_FILE_MB} MB cada`
         : "Configure uma chave NVIDIA NIM para analisar arquivos.";
     }
 
@@ -2207,7 +2212,7 @@
 
     function getRequestContext() {
       const maxMessages = 24;
-      const maxCharacters = 44000;
+      const maxCharacters = MAX_CONTEXT_CHARS;
       const selected = [];
       let characterCount = 0;
       let contextTruncated = false;
@@ -2217,8 +2222,8 @@
         const remaining = maxCharacters - characterCount;
         if (remaining <= 0) break;
         let content = item.content;
-        if (content.length > 30000) {
-          content = content.slice(-30000);
+        if (content.length > MAX_CONTEXT_MESSAGE_CHARS) {
+          content = content.slice(-MAX_CONTEXT_MESSAGE_CHARS);
           contextTruncated = true;
         }
         if (content.length > remaining) {
@@ -2606,8 +2611,12 @@
           ? `${promptText}\n\n📎 ${attachmentsForSend.map(file => file.name).join(", ")}`
           : cleanText;
       if (!cleanText || sending) return;
-      if (cleanText.length > 30000) {
-        setComposerStatus("A mensagem e os arquivos anexados ultrapassam o limite de 30.000 caracteres.", true);
+      if (retryIndex === null && promptText.length > MAX_PROMPT_CHARS) {
+        setComposerStatus(`A mensagem pode ter até ${MAX_PROMPT_CHARS.toLocaleString("pt-BR")} caracteres.`, true);
+        return;
+      }
+      if (cleanText.length > MAX_CHAT_MESSAGE_CHARS) {
+        setComposerStatus(`A mensagem e os arquivos anexados ultrapassam ${MAX_CHAT_MESSAGE_CHARS.toLocaleString("pt-BR")} caracteres.`, true);
         return;
       }
       if (currentConversationId && deletingConversationIds.has(currentConversationId)) {
