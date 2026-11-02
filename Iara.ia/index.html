@@ -1004,6 +1004,7 @@
       background: #20211d;
       cursor: pointer;
     }
+    .composer-tool svg { display: block; width: 18px; height: 18px; }
     .composer-tool:hover:not(:disabled), .composer-tool.recording {
       border-color: #68744a;
       color: var(--accent);
@@ -1242,8 +1243,12 @@
           <form class="composer" id="chatForm">
             <textarea id="prompt" rows="1" aria-label="Sua mensagem" placeholder="Escreva sua mensagem..."></textarea>
             <input id="fileInput" type="file" accept=".txt,.md,.markdown,.csv,.tsv,.json,.yaml,.yml,.xml,.html,.css,.js,.mjs,.cjs,.ts,.jsx,.tsx,.py,.java,.c,.h,.cpp,.hpp,.cs,.go,.rs,.php,.sql,.sh,.ps1,.log,.ini,.toml,.rb,.swift,.kt,.dart,.vue,.svelte,.astro" multiple hidden>
-            <button class="composer-tool" id="attachButton" type="button" aria-label="Anexar arquivos de texto ou código" title="Anexar até 10 arquivos de texto/código, com até 20 MB cada" disabled>📎</button>
-            <button class="composer-tool" id="voiceButton" type="button" aria-label="Iniciar ditado por voz" title="Ditado em português pelo navegador">🎙</button>
+            <button class="composer-tool" id="attachButton" type="button" aria-label="Anexar arquivos de texto ou código" title="Anexar até 10 arquivos de texto/código, com até 20 MB cada" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8.6 12.5 7.2-7.2a3.2 3.2 0 0 1 4.5 4.5l-9.1 9.1a5.2 5.2 0 0 1-7.4-7.4l9.1-9.1"/><path d="m7.2 14 8.4-8.4"/></svg>
+            </button>
+            <button class="composer-tool" id="voiceButton" type="button" aria-label="Iniciar ditado por voz" title="Ditado em português pelo navegador">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7.5" y="2.5" width="9" height="13" rx="4.5"/><path d="M10 6.5h4M10 10h4M4.5 11v1.5a7.5 7.5 0 0 0 15 0V11M12 20v2M8.5 22h7"/></svg>
+            </button>
             <button class="stop-generation" id="stopButton" type="button" aria-label="Interromper geração" title="Interromper geração" hidden><span aria-hidden="true"></span></button>
             <button class="send" id="sendButton" type="submit" aria-label="Enviar mensagem" disabled>
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2614,7 +2619,7 @@
       const displayText = retryIndex !== null
         ? conversation[retryIndex]?.displayContent || cleanText
         : attachmentsForSend.length
-          ? `${promptText}\n\n📎 ${attachmentsForSend.map(file => file.name).join(", ")}`
+          ? `${promptText}\n\nArquivos anexados: ${attachmentsForSend.map(file => file.name).join(", ")}`
           : cleanText;
       if (!cleanText || sending) return;
       if (retryIndex === null && promptText.length > MAX_PROMPT_CHARS) {
