@@ -1,4 +1,4 @@
-const CACHE_NAME = "iara-ia-shell-v4";
+const CACHE_NAME = "iara-ia-shell-v7";
 const APP_SHELL = [
   "./",
   "./index.html",
